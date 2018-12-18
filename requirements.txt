@@ -1,0 +1,4 @@
+numpy
+vizdoom
+tensorflow-gpu
+tensorboard
