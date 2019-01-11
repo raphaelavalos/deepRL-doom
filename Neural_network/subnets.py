@@ -8,7 +8,7 @@ horizon = 6
 def perception_conv(number, input, filters, kernel_size, strides, padding, activation=tf.nn.leaky_relu):
 
     output_conv = tf.layers.conv2d(input, filters, kernel_size, strides, padding, name="perception_conv_{}".format(number))
-    b = tf.get_variable('b_conv_'.format(number), filters, initializer=tf.constant_initializer(0.0))
+    b = tf.get_variable('b_conv_{}'.format(number), filters, initializer=tf.constant_initializer(0.0))
     output = activation(output_conv, b)
 
     return output
@@ -105,7 +105,7 @@ def expectation_full(number, input, output_dim, activation=tf.nn.leaky_relu):
     return output
 
 
-def expectation_net(perception_out, measurement_out, goal_out, parameters):
+def expectation_net(perception_out, measurement_out, goal_out, parameters, arch):
     with tf.variable_scope("expectation"):
         input = tf.concat([perception_out, measurement_out, goal_out], 1)
 
@@ -115,7 +115,7 @@ def expectation_net(perception_out, measurement_out, goal_out, parameters):
 
         output = expectation_full('2',
                                   fc1,
-                                  number_measurement * horizon,
+                                  arch.get('meas_size') * arch.get('num_time'),
                                   activation=None)
 
     return output
@@ -128,7 +128,7 @@ def action_full(number, input, output_dim, activation=tf.nn.leaky_relu):
     return output
 
 
-def action_net(perception_out, measurement_out, goal_out, parameters):
+def action_net(perception_out, measurement_out, goal_out, parameters, arch):
     with tf.variable_scope("action"):
         input = tf.concat([perception_out, measurement_out, goal_out], 1)
 
@@ -138,7 +138,7 @@ def action_net(perception_out, measurement_out, goal_out, parameters):
 
         output = expectation_full('2',
                                   fc1,
-                                  number_action * number_measurement * horizon,
+                                  arch.get('num_action') * arch.get('meas_size') * arch.get('num_time'),
                                   activation=None)
 
     return output

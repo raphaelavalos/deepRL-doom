@@ -19,6 +19,10 @@ def get_options():
     parser.add_argument('--gpu', type=int, default=0,
                         help="The id of the GPU, -1 for CPU (default: 0).",
                         required=False)
+    parser.add_argument('--save_frequency', default=10,
+                        type=int,
+                        help='Frequency in terms of step at which we save the model',
+                        required=False)
 
 
     args = parser.parse_args()
