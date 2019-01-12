@@ -66,10 +66,13 @@ class DOOM_Predictor():
         self.output = tf.add(action_out, expectation_out)
         
 
-    def chose_action(self,output,goal_vec):
+    def chose_action(self,output,goal_vec,epsilon):
         # return the gready action choice  for any output
-        return tf.argmax(tf.tensordot(output, goal_vec, axes=1), axis=1)
-    
+        p = np.random.random()
+        if  p>epsilon:    
+            return tf.argmax(tf.tensordot(output, goal_vec, axes=1), axis=1)
+        else:
+            return np.random.randint(self.parameters['arch']['num_action'])
     
     def optimize(self, data, epochs, step, batch_size, save_freq, lr=0.01, model_path='train/model'):
         
