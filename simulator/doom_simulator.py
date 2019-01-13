@@ -12,7 +12,7 @@ class DoomSimulator:
         self.id = _id
         self._game = vizdoom.DoomGame()
         self._game.load_config(args.mode_path['conf'])
-        self.resolution = (1, 84, 84)  # TODO: pass in arg
+        self.resolution = (84, 84, 1)  # TODO: pass in arg
         self.num_measure = self._game.get_available_game_variables_size()
         self.available_buttons = self._game.get_available_buttons()
         self.episode_count = 0
@@ -48,8 +48,8 @@ class DoomSimulator:
             state = self._game.get_state()
             measure = state.game_variables
             img = state.screen_buffer
-            img = cv2.resize(img, self.resolution[1:])  # TODO: Check image shape
-            img = np.expand_dims(img, 0)
+            img = cv2.resize(img, self.resolution[:-1])  # TODO: Check image shape
+            img = np.expand_dims(img, -1)  # channel at the end for convolutions
 
         self.tmp_memory.add(img, measure, goal, action)
 

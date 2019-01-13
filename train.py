@@ -1,6 +1,5 @@
 import tensorflow as tf
-import numpy as np
-from options import get_options
+from config.options import get_options
 
 
 def get_device(args):

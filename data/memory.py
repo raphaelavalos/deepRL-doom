@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Memory:
 
     def __init__(self, args):
