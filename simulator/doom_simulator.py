@@ -19,6 +19,9 @@ class DoomSimulator:
         self.game_initialized = False
         self.tmp_memory = TmpMemory(args, memory, _id)
 
+    def num_action_to_bool(self, action):
+        return np.array([bool(int(i)) for i in np.binary_repr(action, self.available_buttons)])
+
     def init_game(self):
         if not self.game_initialized:
             self._game.init()
@@ -35,8 +38,23 @@ class DoomSimulator:
         self.episode_count += 1
 
     def step(self, action, goal):
+        '''
+        Perform step
+        Args:
+            action (int): an integer between 0 and the number of actions - 1
+            goal (np.array): goal vector
 
-        reward = self._game.make_action(action, self.args.skip_tic)
+        Returns:
+        '''
+
+        # TODO: see if goal is really needed
+        if action is None:
+            action = self.get_random_action()
+
+        assert 0 <= action <= (2**self.available_buttons - 1), 'Unknown action!'
+
+        bool_action = self.num_action_to_bool(action)
+        reward = self._game.make_action(bool_action, self.args.skip_tic)
         term = self._game.is_episode_finished() or self._game.is_player_dead()
 
         if term:
@@ -45,15 +63,23 @@ class DoomSimulator:
             measure = np.zeros((self.num_measure,), dtype=np.uint32)
 
         else:
-            state = self._game.get_state()
-            measure = state.game_variables
-            img = state.screen_buffer
-            img = cv2.resize(img, self.resolution[:-1])  # TODO: Check image shape
-            img = np.expand_dims(img, -1)  # channel at the end for convolutions
+            img, measure = self.get_state()
 
         self.tmp_memory.add(img, measure, goal, action)
 
         return img, measure, reward, term
+
+    def get_state(self):
+        state = self._game.get_state()
+        measure = state.game_variables
+        img = state.screen_buffer
+        img = cv2.resize(img, self.resolution[:-1])  # TODO: Check image shape
+        img = np.expand_dims(img, -1)  # channel at the end for convolutions
+        return img, measure
+
+    def get_random_action(self):
+        return np.random.randint(0, 2**self.available_buttons - 1, dtype=np.int64)
+
 
 
 

@@ -62,15 +62,14 @@ class DOOM_Predictor():
         # TODO: Loss might not compile - shouldn't use np.arange; there is a batch method to do so - need to check TSP
         # Loss
         loss = tf.losses.mean_squared_error(true_future,
-                                                 tf.gather_nd(action_chooser, tf.stack(((np.arange(64)),
-                                                                                        true_action),
-                                                                                       axis=1)))
+                                            tf.gather_nd(action_chooser,
+                                                         tf.stack(((np.arange(64)), true_action), axis=1)))
         self.loss = loss
         # Optimizer
         learning_rate, optimizer, learning_step = DOOM_Predictor._build_optimizer(conf['optimizer'], loss)
         self._learning_rate = learning_rate
         self._optimizer = optimizer
-        self._learning_step = learning_step
+        self.learning_step = learning_step
 
     @staticmethod
     def _build_perception(conf, perception_input, name="perception"):
@@ -81,6 +80,7 @@ class DOOM_Predictor():
             perception_input (tf.Tensor): Input tensor of the perception module
 
         Returns:
+            Tuple containing the list of the convolution layers and the output Tensor.
 
         """
         assert conf['conv_nbr'] > 0, "Need at least one convolution.\nCheck perception configuration."
@@ -135,9 +135,12 @@ class DOOM_Predictor():
     def _build_action(conf, inputs, name="action"):
         with tf.name_scope(name):
             dense_group, dense_layer = DOOM_Predictor._build_dense(conf['dense'], inputs, "dense" % name)
-            action_reshaped = tf.reshape(dense_layer, shape=(-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
+            action_reshaped = tf.reshape(dense_layer,
+                                         shape=(-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
             action_normalized = action_reshaped - tf.reduce_mean(action_reshaped, axis=1, keepdims=True)
-            action_normalized = tf.reshape(action_normalized, shape=(-1, conf['action_nbr'] * conf['offsets_dim'] * conf['measurement_dim']))
+            action_normalized = tf.reshape(action_normalized,
+                                           shape=(
+                                               -1, conf['action_nbr'] * conf['offsets_dim'] * conf['measurement_dim']))
         return dense_group, dense_layer, action_normalized
 
     @staticmethod
@@ -188,6 +191,6 @@ class DOOM_Predictor():
         with tf.name_scope('choose_action'):
             reshaped_prediction = tf.reshape(prediction,
                                              (-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
-            weighted_actions = tf.reduce_sum(reshaped_prediction * goal -1)
+            weighted_actions = tf.reduce_sum(reshaped_prediction * goal - 1)
             action = tf.argmax(weighted_actions, axis=-1)
         return action

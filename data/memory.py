@@ -16,8 +16,7 @@ class Memory:
         self._targets = np.zeros((self.capacity, len(args.time_offsets) * self.measure_dim), dtype=np.float32)
         self._actions = np.zeros((self.capacity, self.action_dim), dtype=np.int64)
         self._goals = np.zeros((self.capacity, self.measure_dim), dtype=np.int64)
-        self._full_once = False
-        self.batch_size = args.batch
+        self.full_once = False
 
     def add_experience(self, images, measures, goals, actions, targets, _id):
         size = len(images)
@@ -37,11 +36,11 @@ class Memory:
             self._goals[self.counter:], self._goals[:, rest] = goals[:split], goals[split:]
             self._actions[self.counter:], self._actions[:, rest] = actions[:split], actions[split:]
             self.counter = rest
-            self._full_once = True
+            self.full_once = True
 
-    def get_batch(self):
-        upper = self.capacity if self._full_once else self.counter
-        index = np.random.randint(upper, size=self.batch_size)
+    def get_batch(self, batch_size):
+        upper = self.capacity if self.full_once else self.counter
+        index = np.random.randint(upper, size=batch_size)
         images = self._images[index]
         actions = self._actions[index]
         targets = self._targets[index]
