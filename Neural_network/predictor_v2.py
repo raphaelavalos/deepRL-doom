@@ -135,9 +135,9 @@ class DOOM_Predictor():
     def _build_action(conf, inputs, name="action"):
         with tf.name_scope(name):
             dense_group, dense_layer = DOOM_Predictor._build_dense(conf['dense'], inputs, "dense" % name)
-            action_reshaped = tf.reshape(dense_layer, shape=(-1, conf['action_nbr'], conf['offsets_dim']))
+            action_reshaped = tf.reshape(dense_layer, shape=(-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
             action_normalized = action_reshaped - tf.reduce_mean(action_reshaped, axis=1, keepdims=True)
-            action_normalized = tf.reshape(action_normalized, shape=(-1, conf['action_nbr'] * conf['offsets_dim']))
+            action_normalized = tf.reshape(action_normalized, shape=(-1, conf['action_nbr'] * conf['offsets_dim'] * conf['measurement_dim']))
         return dense_group, dense_layer, action_normalized
 
     @staticmethod
@@ -188,6 +188,6 @@ class DOOM_Predictor():
         with tf.name_scope('choose_action'):
             reshaped_prediction = tf.reshape(prediction,
                                              (-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
-            weighted_actions = tf.reduce_sum(tf.multiply(reshaped_prediction, goal), -1)
+            weighted_actions = tf.reduce_sum(reshaped_prediction * goal -1)
             action = tf.argmax(weighted_actions, axis=-1)
         return action

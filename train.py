@@ -1,6 +1,9 @@
 import tensorflow as tf
 from config.options import get_options
 
+# TODO : Create training loop calling agent with succession of fill memory/train predictor
+
+
 
 def get_device(args):
     if not args.cuda or args.gpu == -1:
