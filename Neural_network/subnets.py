@@ -5,9 +5,11 @@ number_measurement = 3
 horizon = 6
 
 """PERCEPTION BLOCK"""
-def perception_conv(number, input, filters, kernel_size, strides, padding, activation=tf.nn.leaky_relu):
 
-    output_conv = tf.layers.conv2d(input, filters, kernel_size, strides, padding, name="perception_conv_{}".format(number))
+
+def perception_conv(number, input, filters, kernel_size, strides, padding, activation=tf.nn.leaky_relu):
+    output_conv = tf.layers.conv2d(input, filters, kernel_size, strides, padding,
+                                   name="perception_conv_{}".format(number))
     b = tf.get_variable('b_conv_{}'.format(number), filters, initializer=tf.constant_initializer(0.0))
     output = activation(output_conv, b)
 
@@ -15,14 +17,13 @@ def perception_conv(number, input, filters, kernel_size, strides, padding, activ
 
 
 def perception_full(number, input, output_dim):
-
     flat = tf.contrib.layers.flatten(input)
     output = tf.layers.dense(flat, output_dim, name="perception_full_{}".format(number))
 
     return output
 
 
-def perception_net(input,parameters):
+def perception_net(input, parameters):
     """"The shape are as in the paper for Basic model"""
     with tf.variable_scope("perception"):
         conv1 = perception_conv('1',
@@ -49,8 +50,9 @@ def perception_net(input,parameters):
 
 
 """MEASUREMENT BLOCK"""
-def measurement_full(number, input, output_dim , activation=tf.nn.leaky_relu):
 
+
+def measurement_full(number, input, output_dim, activation=tf.nn.leaky_relu):
     output = tf.layers.dense(input, output_dim, name="measurement_full_{}".format(number), activation=activation)
 
     return output
@@ -73,8 +75,9 @@ def measurement_net(input, parameters):
 
 
 """GOAL BLOCK"""
-def goal_full(number, input, output_dim, activation=tf.nn.leaky_relu):
 
+
+def goal_full(number, input, output_dim, activation=tf.nn.leaky_relu):
     output = tf.layers.dense(input, output_dim, name="goal_full_{}".format(number), activation=activation)
 
     return output
@@ -98,8 +101,9 @@ def goal_net(input, parameters):
 
 
 """EXPECTATION BLOCK"""
-def expectation_full(number, input, output_dim, activation=tf.nn.leaky_relu):
 
+
+def expectation_full(number, input, output_dim, activation=tf.nn.leaky_relu):
     output = tf.layers.dense(input, output_dim, name="expectation_full_{}".format(number), activation=activation)
 
     return output
@@ -122,6 +126,8 @@ def expectation_net(perception_out, measurement_out, goal_out, parameters, arch)
 
 
 """ACTION BLOCK"""
+
+
 def action_full(number, input, output_dim, activation=tf.nn.leaky_relu):
     output = tf.layers.dense(input, output_dim, name="action_full_{}".format(number), activation=activation)
 
