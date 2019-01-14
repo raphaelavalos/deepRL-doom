@@ -26,6 +26,10 @@ def get_options():
                         type=int,
                         help='Frequency in terms of step at which we save the model',
                         required=False)
+    parser.add_argument('--batch_size',default=64,
+                        type=int,
+                        help='Size of the batch processed per step',
+                        required=False)
 
     args = parser.parse_args()
     pprint.pprint(vars(args))

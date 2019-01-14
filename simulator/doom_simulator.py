@@ -37,7 +37,7 @@ class DoomSimulator:
         self._game.new_episode()
         self.episode_count += 1
 
-    def step(self, action, goal):
+    def step(self, action):
         '''
         Perform step
         Args:
@@ -65,7 +65,7 @@ class DoomSimulator:
         else:
             img, measure = self.get_state()
 
-        self.tmp_memory.add(img, measure, goal, action)
+        self.tmp_memory.add(img, measure, action)
 
         return img, measure, reward, term
 

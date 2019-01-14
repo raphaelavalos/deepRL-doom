@@ -15,16 +15,14 @@ class Memory:
         self._measures = np.zeros((self.capacity, self.measure_dim), dtype=np.float32)
         self._targets = np.zeros((self.capacity, len(args.time_offsets) * self.measure_dim), dtype=np.float32)
         self._actions = np.zeros((self.capacity, self.action_dim), dtype=np.int64)
-        self._goals = np.zeros((self.capacity, self.measure_dim), dtype=np.int64)
         self.full_once = False
 
-    def add_experience(self, images, measures, goals, actions, targets, _id):
+    def add_experience(self, images, measures, actions, targets):
         size = len(images)
         if self.counter + size < self.capacity:
             self._images[self.counter: self.counter + size] = images
             self._measures[self.counter: self.counter + size] = measures
             self._targets[self.counter: self.counter + size] = targets
-            self._goals[self.counter: self.counter + size] = goals
             self._actions[self.counter: self.counter + size] = actions
             self.counter += size
         else:
@@ -33,7 +31,6 @@ class Memory:
             self._images[self.counter:], self._images[:, rest] = images[:split], images[split:]
             self._measures[self.counter:], self._measures[:, rest] = measures[:split], measures[split:]
             self._targets[self.counter:], self._targets[:, rest] = targets[:split], targets[split:]
-            self._goals[self.counter:], self._goals[:, rest] = goals[:split], goals[split:]
             self._actions[self.counter:], self._actions[:, rest] = actions[:split], actions[split:]
             self.counter = rest
             self.full_once = True
@@ -44,6 +41,5 @@ class Memory:
         images = self._images[index]
         actions = self._actions[index]
         targets = self._targets[index]
-        goals = self._goals[index]
         measures = self._measures[index]
-        return images, measures, goals, actions, targets
+        return images, measures, actions, targets

@@ -1,5 +1,7 @@
 import tensorflow as tf
 from config.options import get_options
+from agent import Agent
+from tqdm import tqdm
 
 # TODO : Create training loop calling agent with succession of fill memory/train predictor
 
@@ -15,15 +17,22 @@ def get_device(args):
 
 if __name__ == '__main__':
     args = get_options()
+    epochs = args.epoch
+    steps = args.step
+    save_freq = args.save_frequency
+    save_dir = args.save_dir
+    batch_size = args.batch_size
+    agent = Agent(args)
+    epsilon = 1  # TODO : softcoder toussa
+    for epoch in tqdm(range(epochs)):
+        # We fill the memory in the while loop
+        while not agent.memory.full_once:
+            print('Filling memory')  # TODO Remove once we know it works
+            agent.run_episode(epsilon)
+        epsilon *= 0.9
+        # Train predictor and save every save_freq epochs
+        for step in tqdm(range(steps)):
+            agent.get_learning_step(batch_size)
 
-    # Get device
-    device = get_device(args)
-
-    # Create Graph & Session config
-    graph = tf.Graph()
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
-    config.allow_soft_placement = False
-
-    with graph.device(device):
-        sess = tf.Session(config=config)
+            if (step % save_freq) == 0:
+                agent.save_pred(save_dir, epoch, step)

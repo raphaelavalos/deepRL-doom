@@ -62,8 +62,8 @@ class DOOM_Predictor():
         # TODO: Loss might not compile - shouldn't use np.arange; there is a batch method to do so - need to check TSP
         # Loss
         loss = tf.losses.mean_squared_error(true_future,
-                                            tf.gather_nd(action_chooser,
-                                                         tf.stack(((np.arange(64)), true_action), axis=1)))
+                                            tf.gather_nd(self._prediction,
+                                                         tf.stack(((np.arange(conf.batch_size)), true_action), axis=1)))
         self.loss = loss
         # Optimizer
         learning_rate, optimizer, learning_step = DOOM_Predictor._build_optimizer(conf['optimizer'], loss)

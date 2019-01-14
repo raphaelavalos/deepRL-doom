@@ -10,7 +10,7 @@ class MultiDoomSimulator:
         self.memory = memory
         self.simulators = [DoomSimulator(args['simulator'], memory, _id=i) for i in range(args.nbr_of_simulators)]
 
-    def step(self, actions, goals):
+    def step(self, actions):
         # TODO: might not need goal
         if actions is None:
             actions = [None] * self.nbr_of_simulators
@@ -22,8 +22,8 @@ class MultiDoomSimulator:
         rewards = []
         terms = []
 
-        for simulator, action, goal in zip(self.simulators, actions, goals):
-            img, measure, reward, term = simulator.step(action, goal)
+        for simulator, action in zip(self.simulators, actions):
+            img, measure, reward, term = simulator.step(action)
             images.append(img)
             measures.append(measure)
             rewards.append(reward)
