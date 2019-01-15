@@ -83,7 +83,7 @@ class DOOM_Predictor():
 
         """
         assert conf['conv_nbr'] > 0, "Need at least one convolution.\nCheck perception configuration."
-        with tf.name_scope(name):
+        with tf.variable_scope(name):
             xavier_init = tf.contrib.layers.xavier_initializer()
             conv_group = []
             conv = None
@@ -113,7 +113,7 @@ class DOOM_Predictor():
     @staticmethod
     def _build_dense(conf, inputs, name):
         assert conf['dense_nbr'] > 0, "Need at least one dense layer.\nCheck configuration."
-        with tf.name_scope(name):
+        with tf.variable_scope(name):
             dense_group = []
             xavier_init = tf.contrib.layers.xavier_initializer()
             dense_layer = None
@@ -132,8 +132,8 @@ class DOOM_Predictor():
 
     @staticmethod
     def _build_action(conf, inputs, name="action"):
-        with tf.name_scope(name):
-            dense_group, dense_layer = DOOM_Predictor._build_dense(conf['dense'], inputs, "dense" % name)
+        with tf.variable_scope(name):
+            dense_group, dense_layer = DOOM_Predictor._build_dense(conf['dense'], inputs, "dense_%s" % name)
             action_reshaped = tf.reshape(dense_layer,
                                          shape=(-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
             action_normalized = action_reshaped - tf.reduce_mean(action_reshaped, axis=1, keepdims=True)
@@ -144,7 +144,7 @@ class DOOM_Predictor():
 
     @staticmethod
     def _build_prediction(conf, expectation, action, name="prediction"):
-        with tf.name_scope(name):
+        with tf.variable_scope(name):
             tiled_expectation = tf.tile(expectation, [1, conf['action_nbr']], name="tile_expectation")
             prediction = tiled_expectation + action
         return prediction
@@ -164,7 +164,7 @@ class DOOM_Predictor():
 
     @staticmethod
     def _build_optimizer(conf, loss):
-        with tf.name_scope('optimizer'):
+        with tf.variable_scope('optimizer'):
             global_step = tf.Variable(0, trainable=False)
             learning_rate = tf.train.exponential_decay(learning_rate=np.array(conf['learning_rate'], dtype=np.float32),
                                                        global_step=global_step,
@@ -187,7 +187,7 @@ class DOOM_Predictor():
             tf.Tensor: Tensor containing the index of the chosen actions, shape=[batch,]
 
         """
-        with tf.name_scope('choose_action'):
+        with tf.variable_scope('choose_action'):
             reshaped_prediction = tf.reshape(prediction,
                                              (-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
             weighted_actions = tf.reduce_sum(reshaped_prediction * goal - 1)
