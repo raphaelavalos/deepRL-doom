@@ -61,6 +61,8 @@ def build_conf(mode, mode_path, nbr_of_simulators, device):
     conf['action'] = {}
     conf['action']['action_nbr'] = 256
     conf['action']['offsets_dim'] = 6
+    conf['action']['measurement_dim'] = conf['measurement_dim']
+    conf['action']['offsets_dim'] = conf['offsets_dim']
     conf['action']['dense'] = {}
     conf['action']['dense']['dense_nbr'] = 2
     conf['action']['dense']['dense_0'] = {}
