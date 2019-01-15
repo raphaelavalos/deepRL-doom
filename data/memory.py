@@ -3,17 +3,17 @@ import numpy as np
 
 class Memory:
 
-    def __init__(self, args):
-        self.args = args
-        self.capacity = args.memory_capacity
-        self.nbr_simulators = args.nbr_simulators
+    def __init__(self, conf):
+        self.conf = conf
+        self.capacity = conf['memory']['capacity']
+        self.nbr_simulators = conf['nbr_of_simulators']
         self.image_resolution = (1, 84, 84)  # TODO: pass in arg
         self.measure_dim = 1  # TODO: pass in arg
         self.action_dim = 8  # TODO: pass in arg
         self.counter = 0
         self._images = np.zeros((self.capacity,) + self.image_resolution, dtype=np.float32)
         self._measures = np.zeros((self.capacity, self.measure_dim), dtype=np.float32)
-        self._targets = np.zeros((self.capacity, len(args.time_offsets) * self.measure_dim), dtype=np.float32)
+        self._targets = np.zeros((self.capacity, len(conf['offsets_dim']) * self.measure_dim), dtype=np.float32)
         self._actions = np.zeros((self.capacity, self.action_dim), dtype=np.int64)
         self.full_once = False
 

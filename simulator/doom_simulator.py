@@ -6,18 +6,18 @@ from data.tmp_memory import TmpMemory
 
 class DoomSimulator:
 
-    def __init__(self, args, memory, _id):
-        self.args = args
+    def __init__(self, conf, memory, _id):
+        self.conf = conf
         self.memory = memory
         self.id = _id
         self._game = vizdoom.DoomGame()
-        self._game.load_config(args.mode_path['conf'])
+        self._game.load_config(conf['mode_path']['cfg'])
         self.resolution = (84, 84, 1)  # TODO: pass in arg
         self.num_measure = self._game.get_available_game_variables_size()
         self.available_buttons = self._game.get_available_buttons()
         self.episode_count = -1
         self.game_initialized = False
-        self.tmp_memory = TmpMemory(args, memory, _id)
+        self.tmp_memory = TmpMemory(conf, memory, _id)
         self.term = False  # TODO: might be removed in favor of closing/opening the game however need to check speed
 
     def num_action_to_bool(self, action):

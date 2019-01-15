@@ -4,11 +4,11 @@ from .doom_simulator import DoomSimulator
 
 class MultiDoomSimulator:
 
-    def __init__(self, args, memory):
-        self.args = args
-        self.nbr_of_simulators = args.nbr_of_simulators
+    def __init__(self, conf, memory):
+        self.conf = conf
+        self.nbr_of_simulators = conf['nbr_of_simulators']
         self.memory = memory
-        self.simulators = [DoomSimulator(args['simulator'], memory, _id=i) for i in range(args.nbr_of_simulators)]
+        self.simulators = [DoomSimulator(conf, memory, _id=i) for i in range(conf['nbr_of_simulators'])]
 
     def init_simulators(self):
         for simulator in self.simulators:

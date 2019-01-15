@@ -7,7 +7,6 @@ from Neural_network.config_v2 import build_conf
 # TODO : Create training loop calling agent with succession of fill memory/train predictor
 
 
-
 def get_device(args):
     if not args.cuda or args.gpu == -1:
         device = "/cpu:0"
@@ -23,8 +22,8 @@ if __name__ == '__main__':
     save_freq = args.save_frequency
     save_dir = args.save_dir
     batch_size = args.batch_size
-    agent = Agent(build_conf(args.mode))
-    epsilon = 1  # TODO : softcoder toussa
+    agent = Agent(build_conf(args.mode, args.mode_path, args.nbr_of_simulators))
+    epsilon = 1  
     for epoch in trange(epochs, desc="Epoch"):
         # We fill the memory in the while loop
         while not agent.memory.full_once:

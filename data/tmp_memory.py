@@ -3,11 +3,11 @@ import numpy as np
 
 class TmpMemory:
 
-    def __init__(self, args, memory, _id):
+    def __init__(self, conf, memory, _id):
         self.id = _id
         self.memory = memory
-        self.args = args
-        self.time_offset = np.sort(args.time_offsets)
+        self.conf = conf
+        self.time_offset = np.sort(conf['offsets_dim'])
         self._images = []
         self._measures = []
         self._actions = []

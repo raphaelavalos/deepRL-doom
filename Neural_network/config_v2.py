@@ -1,5 +1,5 @@
 # DOOM_Predictor_v2 configuration dictionary
-def build_conf(mode):
+def build_conf(mode, mode_path, nbr_of_simulators):
     conf = {}
     conf['choose_action'] = {}
 
@@ -72,5 +72,10 @@ def build_conf(mode):
     conf['optimizer']['learning_rate'] = 0.001
     conf['optimizer']['decay_steps'] = 10000  # TODO: change those values
     conf['optimizer']['decay_rate'] = 0.96
+
+    conf['mode_path'] = mode_path
+    conf['nbr_of_simulators'] = nbr_of_simulators
+    conf['memory'] = {}
+    conf['memory']['capacity'] = 1000  # TODO: Change this value
 
     return conf

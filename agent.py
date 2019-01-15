@@ -12,7 +12,6 @@ class Agent:
         self.graph = tf.Graph()
         self.saver = tf.train.Saver()
 
-
         # Configuration for session
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
@@ -51,14 +50,15 @@ class Agent:
             init = tf.initialize_all_variables
             self.sess.run([init])
 
-        self.memory = Memory(conf.memory)  # TODO : See how handle args with train
-        self.doom_simulator = MultiDoomSimulator(conf.simulator, self.memory)  # TODO See how handle args with train
+        self.memory = Memory(conf)
+        self.doom_simulator = MultiDoomSimulator(conf, self.memory)
         self.doom_simulator.init_simulators()
 
     def run_episode(self, epsilon):  # TODO : pass epsilon as arg
         running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
         self.doom_simulator.new_episodes()
-        goal = np.random.rand(self.doom_simulator.nbr_of_simulators, 3)  # TODO: replace 3
+        goal = np.random.rand(self.doom_simulator.nbr_of_simulators,
+                              self.conf['offsets_dim'] * self.conf['measurement_dim'])
         images, measures = self.doom_simulator.get_state()
         while len(running_simulators) != 0:
             p = np.random.random()  # TODO: need to replace with a vector of len running_simulators
@@ -72,13 +72,12 @@ class Agent:
                 images, measures, _, _, running_simulators = self.doom_simulator.step(None, running_simulators)
 
     def get_learning_step(self, batch_size):
-        batch =  self.memory.get_batch(batch_size)
+        batch = self.memory.get_batch(batch_size)
         feed_dict = { self._visual_placeholder: batch[0],
                       self._measurement_placeholder: batch[1],
-                      self._goal_placeholder: batch[2], # TODO: Make sure we reintroduce goal in get_batch
+                      self._goal_placeholder: batch[2],  # TODO: Make sure we reintroduce goal in get_batch
                       self._true_action_placeholder: batch[3],
                       self._true_future_placeholder: batch[4]}
-
 
         self.sess.run(self.learning_step,
                       feed_dict)
