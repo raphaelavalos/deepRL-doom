@@ -22,7 +22,7 @@ class MultiDoomSimulator:
         for simulator in self.simulators:
             simulator.new_episode()
 
-    def step(self, actions, goals, ids=None):
+    def step(self, actions, goals, ids):
         ids = range(self.nbr_of_simulators) if ids is None else ids
 
         if actions is None:
@@ -43,13 +43,12 @@ class MultiDoomSimulator:
             terms.append(term)
 
         terms = np.array(terms)
+        future_ids = np.fromiter((sim for i, sim in enumerate(ids) if not terms[i]), dtype=np.int64)
 
         images = np.stack(images, 0)[terms == False]
         measures = np.stack(measures, 0)[terms == False]
         rewards = np.stack(rewards, 0)[terms == False]
         terms = np.stack(terms, 0)[terms == False]
-
-        future_ids = np.fromiter((sim for i, sim in enumerate(ids) if not terms[i]), dtype=np.int64)
 
         return images, measures, rewards, terms, future_ids
 

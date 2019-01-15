@@ -68,9 +68,10 @@ class Agent:
                              self._measurement_placeholder: measures,
                              self._goal_placeholder: goal[running_simulators].reshape(-1, 1)}
                 next_actions = self.sess.run(self.doom_predictor.action_chooser, feed_dict=feed_dict)
-                images, measures, _, _, running_simulators = self.doom_simulator.step(next_actions, running_simulators)
+                images, measures, _, _, running_simulators = self.doom_simulator.step(next_actions, goal,
+                                                                                      running_simulators)
             else:
-                images, measures, _, _, running_simulators = self.doom_simulator.step(None, running_simulators)
+                images, measures, _, _, running_simulators = self.doom_simulator.step(None, goal, running_simulators)
 
     def get_learning_step(self, batch_size):
         batch = self.memory.get_batch(batch_size)
