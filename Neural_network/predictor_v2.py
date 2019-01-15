@@ -55,12 +55,13 @@ class DOOM_Predictor():
 
         # Choose action
         self._goal_for_action_selection = tf.constant(0)  # TODO: create tf.constant with value from conf
-        action_chooser = DOOM_Predictor._choose_action(conf['choose_action'], prediction,
+        action_chooser = DOOM_Predictor._choose_action(conf, prediction,
                                                        self._goal_for_action_selection)
         self.action_chooser = action_chooser
 
         # TODO: need to check batch_gather output
         # Loss
+        print(tf.batch_gather(prediction, tf.expand_dims(true_action, -1)).get_shape())
         loss = tf.losses.mean_squared_error(true_future, tf.batch_gather(prediction, tf.expand_dims(true_action, -1)))
 
         self.loss = loss
@@ -190,6 +191,7 @@ class DOOM_Predictor():
         with tf.variable_scope('choose_action'):
             reshaped_prediction = tf.reshape(prediction,
                                              (-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
-            weighted_actions = tf.reduce_sum(reshaped_prediction * goal - 1)
+            goal = tf.cast(goal, tf.float32)
+            weighted_actions = tf.reduce_sum(reshaped_prediction * goal, - 1)
             action = tf.argmax(weighted_actions, axis=-1)
         return action

@@ -4,7 +4,7 @@ def build_conf(mode, mode_path, nbr_of_simulators, device):
     conf['choose_action'] = {}
 
     if mode == 1 or mode == 2:
-        conf['choose_action']['action_nbr'] = 8
+        conf['action_nbr'] = 8
         conf['offsets_dim'] = 6
         conf['measurement_dim'] = 1
 
@@ -59,14 +59,16 @@ def build_conf(mode, mode_path, nbr_of_simulators, device):
     conf['expectation']['dense_1'] = {}
     conf['expectation']['dense_1']['units'] = conf['offsets_dim'] * conf['measurement_dim']
     conf['action'] = {}
-    conf['action']['action_nbr'] = 256
+    conf['action']['action_nbr'] = conf['action_nbr']
     conf['action']['offsets_dim'] = 6
+    conf['action']['measurement_dim'] = conf['measurement_dim']
+    conf['action']['offsets_dim'] = conf['offsets_dim']
     conf['action']['dense'] = {}
     conf['action']['dense']['dense_nbr'] = 2
     conf['action']['dense']['dense_0'] = {}
     conf['action']['dense']['dense_0']['units'] = 512
     conf['action']['dense']['dense_1'] = {}
-    conf['action']['dense']['dense_1']['units'] = conf['offsets_dim'] * conf['measurement_dim'] * conf['choose_action']['action_nbr']
+    conf['action']['dense']['dense_1']['units'] = conf['offsets_dim'] * conf['measurement_dim'] * conf['action_nbr']
 
     conf['optimizer'] = {}
     conf['optimizer']['learning_rate'] = 0.001
