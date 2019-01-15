@@ -46,11 +46,13 @@ class MultiDoomSimulator:
         future_ids = np.fromiter((sim for i, sim in enumerate(ids) if not terms[i]), dtype=np.int64)
 
         images = np.stack(images, 0)[terms == False]
-        measures = np.stack(measures, 0)[terms == False]
+        measures = np.stack(measures, 0)
+        f_measures = measures[terms]
+        measures = measures[terms == False]
         rewards = np.stack(rewards, 0)[terms == False]
         terms = np.stack(terms, 0)[terms == False]
 
-        return images, measures, rewards, terms, future_ids
+        return images, measures, rewards, terms, future_ids, f_measures
 
     def get_state(self):
         images = []

@@ -1,4 +1,4 @@
-import tensorflow as tf
+import numpy as np
 from config.options import get_options
 from agent import Agent
 from tqdm import trange
@@ -28,6 +28,12 @@ if __name__ == '__main__':
         # Train predictor and save every save_freq epochs
         for step in trange(args.step, desc="Step", leave=False):
             agent.get_learning_step(batch_size)
+
+        val = []
+        for _ in trange(8, desc="Validation", leave=False):
+            val.append(agent.validate())
+        val = np.concatenate(val)
+        print('Validation: %.3f +/- %.3f' % (val.mean(), val.std()))  # TODO: change it for modes 3 & 4
 
         if (epoch % save_freq) == 0:
             agent.save_pred(save_dir, epoch)
