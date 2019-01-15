@@ -56,7 +56,7 @@ class DoomSimulator:
         if action is None:
             action = self.get_random_action()
 
-        assert 0 <= action <= (2**len(self.available_buttons) - 1), 'Unknown action!'
+        assert 0 <= action <= (2 ** len(self.available_buttons) - 1), 'Unknown action!'
 
         bool_action = self.num_action_to_bool(action)
         reward = self._game.make_action(list(bool_action), self.conf['skip_tic'])
@@ -69,7 +69,6 @@ class DoomSimulator:
 
         else:
             img, measure = self.get_state()
-
 
         self.tmp_memory.add(img, measure, action, goal)
 
@@ -84,14 +83,4 @@ class DoomSimulator:
         return img, measure
 
     def get_random_action(self):
-        return np.random.randint(0, 2**len(self.available_buttons) - 1, dtype=np.int64)
-
-
-
-
-
-
-
-
-
-
+        return np.random.randint(0, 2 ** len(self.available_buttons) - 1, dtype=np.int64)

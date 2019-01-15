@@ -65,8 +65,3 @@ class MultiDoomSimulator:
         measures = np.stack(measures, 0)
 
         return images, measures
-
-
-
-
-

@@ -2,17 +2,10 @@ import tensorflow as tf
 from config.options import get_options
 from agent import Agent
 from tqdm import trange
-from Neural_network.config_v2 import build_conf
+from model.config import build_conf
+
 
 # TODO : Create training loop calling agent with succession of fill memory/train predictor
-
-
-def get_device(args):
-    if not args.cuda or args.gpu == -1:
-        device = "/cpu:0"
-    else:
-        device = "/device:GPU:%i" % args.gpu
-    return device
 
 
 if __name__ == '__main__':
@@ -22,7 +15,8 @@ if __name__ == '__main__':
     save_freq = args.save_frequency
     save_dir = args.full_saving_path
     batch_size = args.batch_size
-    agent = Agent(build_conf(args.mode, args.mode_path, args.nbr_of_simulators,get_device(args),args.skip_tic))
+    agent_conf = build_conf(args)
+    agent = Agent(agent_conf)
     epsilon = 1
     # We fill the memory in the while loop
     while not agent.memory.full_once:
@@ -36,4 +30,4 @@ if __name__ == '__main__':
             agent.get_learning_step(batch_size)
 
         if (epoch % save_freq) == 0:
-            agent.save_pred(save_dir, epoch, step)
+            agent.save_pred(save_dir, epoch)

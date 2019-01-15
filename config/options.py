@@ -5,6 +5,14 @@ import os
 import time
 
 
+def get_device(args):
+    if not args.cuda or args.gpu == -1:
+        device = "/cpu:0"
+    else:
+        device = "/device:GPU:%i" % args.gpu
+    return device
+
+
 def get_options():
     parser = argparse.ArgumentParser(description="Learning To Act By Predicting The Future")
     parser.add_argument('--epoch', default=100, type=int, help="The number of epoch to train", required=False)
@@ -20,19 +28,25 @@ def get_options():
     parser.add_argument('--mode', type=int, default=1, choices=[1, 2, 3, 4], help="Scenario number 1,2,3 or 4",
                         required=False)
     parser.add_argument('--skip_tic', type=int, default=4, help="Number of frames skipped (default:4)", required=False)
+    parser.add_argument('--memory', type=int, default=10000, help="Memory capacity", required=False)
     parser.add_argument('--nbr_of_simulators', default=8, type=int, help='Number of simulators to run in parallel',
                         required=False)
     parser.add_argument('--save_frequency', default=10,
                         type=int,
                         help='Frequency in terms of step at which we save the model',
                         required=False)
-    parser.add_argument('--batch_size',default=64,
+    parser.add_argument('--batch_size', default=64,
                         type=int,
                         help='Size of the batch processed per step',
                         required=False)
+    parser.add_argument('--learning_rate', type=float, default=1e-4, help="Learning rate default 0.0001",
+                        required=False)
+    parser.add_argument('--decay_rate', type=float, default=0.9, help="Decay rate default: 0.9",
+                        required=False)
+    parser.add_argument('--decay_steps', type=int, default=1000, help="Decay step",
+                        required=False)
 
     args = parser.parse_args()
-
 
     assert args.skip_tic > 0, 'The number of skip frames must be at least 1'
 
@@ -46,6 +60,7 @@ def get_options():
         4: {'cfg': 'maps/D4_battle2.cfg', 'wad': 'maps/D4_battle2.cfg'}}
 
     setattr(args, 'mode_path', available_modes[args.mode])
+    setattr(args, 'device', get_device(args))
 
     pprint.pprint(vars(args))
 

@@ -1,14 +1,15 @@
 # DOOM_Predictor_v2 configuration dictionary
-def build_conf(mode, mode_path, nbr_of_simulators, device, skip_tic):
-    conf = {}
-    conf['choose_action'] = {}
 
-    if mode == 1 or mode == 2:
+
+def build_conf(args):
+    conf = {}
+
+    if args.mode in [1, 2]:
         conf['action_nbr'] = 8
         conf['offsets_dim'] = 6
         conf['measurement_dim'] = 1
 
-    elif mode == 3 or mode == 4:
+    elif args.mode in [3, 4]:
         conf['choose_action']['action_nbr'] = 256
         conf['offsets_dim'] = 6
         conf['measurement_dim'] = 3
@@ -71,16 +72,17 @@ def build_conf(mode, mode_path, nbr_of_simulators, device, skip_tic):
     conf['action']['dense']['dense_1']['units'] = conf['offsets_dim'] * conf['measurement_dim'] * conf['action_nbr']
 
     conf['optimizer'] = {}
-    conf['optimizer']['learning_rate'] = 0.001
-    conf['optimizer']['decay_steps'] = 10000  # TODO: change those values
-    conf['optimizer']['decay_rate'] = 0.96
+    conf['optimizer']['learning_rate'] = args.learning_rate
+    conf['optimizer']['decay_steps'] = args.decay_steps
+    conf['optimizer']['decay_rate'] = args.decay_rate
 
-    conf['mode_path'] = mode_path
-    conf['nbr_of_simulators'] = nbr_of_simulators
+    conf['mode_path'] = args.mode_path
+    conf['nbr_of_simulators'] = args.nbr_of_simulators
     conf['memory'] = {}
-    conf['memory']['capacity'] = 1000  # TODO: Change this value
-    conf['device'] = device
+    conf['memory']['capacity'] = args.memory
+    conf['device'] = args.device
     conf['image_resolution'] = (84, 84, 1)
     conf['offsets'] = [1, 2, 4, 8, 16, 32]
-    conf['skip_tic'] = skip_tic
+    conf['skip_tic'] = args.skip_tic
+    conf['experiment_name'] = args.name
     return conf

@@ -1,5 +1,5 @@
 import tensorflow as tf
-from Neural_network.predictor_v2 import DOOM_Predictor
+from model.predictor import DOOM_Predictor
 from simulator.multi_doom_simulator import MultiDoomSimulator
 from data.memory import Memory
 import numpy as np
@@ -44,17 +44,20 @@ class Agent:
                                                  self._true_future_placeholder)
 
             self.learning_step = self.doom_predictor.learning_step
+            self.loss_summary = tf.summary.scalar("Loss", self.doom_predictor.loss)
+            self.counter = 0
 
             # Initialise all variables
             self.saver = tf.train.Saver()
             init = tf.global_variables_initializer()
+            self.writer = tf.summary.FileWriter("log/" + conf['experiment_name'], self.sess.graph)
             self.sess.run([init])
 
         self.memory = Memory(conf)
         self.doom_simulator = MultiDoomSimulator(conf, self.memory)
         self.doom_simulator.init_simulators()
 
-    def run_episode(self, epsilon):  # TODO : pass epsilon as arg
+    def run_episode(self, epsilon):
         running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
         self.doom_simulator.new_episodes()
         goal = np.random.rand(self.doom_simulator.nbr_of_simulators,
@@ -67,6 +70,7 @@ class Agent:
                              self._measurement_placeholder: measures,
                              self._goal_placeholder: goal[running_simulators]}
                 next_actions = self.sess.run(self.doom_predictor.action_chooser, feed_dict=feed_dict)
+
                 images, measures, _, _, running_simulators = self.doom_simulator.step(next_actions, goal,
                                                                                       running_simulators)
             else:
@@ -76,14 +80,16 @@ class Agent:
         images, measures, actions, targets, goals = self.memory.get_batch(batch_size)
         feed_dict = {self._visual_placeholder: images,
                      self._measurement_placeholder: measures,
-                     self._goal_placeholder: goals,  # TODO: Make sure we reintroduce goal in get_batch
+                     self._goal_placeholder: goals,
                      self._true_action_placeholder: actions,
                      self._true_future_placeholder: targets}
 
-        self.sess.run(self.learning_step,
-                      feed_dict)
+        _, loss_summary_ = self.sess.run([self.learning_step, self.loss_summary], feed_dict)
 
-    def save_pred(self, path, epoch, step):
-        self.saver.save(self.sess, os.path.join(path + "epoch_%s_step_%s.tf" % (epoch, step)))
+        self.writer.add_summary(loss_summary_, self.counter)
+        self.counter += 1
+
+    def save_pred(self, path, epoch):
+        self.saver.save(self.sess, os.path.join(path + "epoch_%s.tf" % epoch))
 
         # To get predictions, learning_step... doom_predictor._predictions ..., do not forget to feed!
