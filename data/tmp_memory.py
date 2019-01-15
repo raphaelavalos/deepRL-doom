@@ -7,7 +7,7 @@ class TmpMemory:
         self.id = _id
         self.memory = memory
         self.conf = conf
-        self.time_offset = np.sort(conf['offsets_dim'])
+        self.time_offset = np.sort(conf['offsets'])
         self._images = []
         self._measures = []
         self._actions = []

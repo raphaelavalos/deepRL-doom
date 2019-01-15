@@ -42,10 +42,12 @@ class MultiDoomSimulator:
             rewards.append(reward)
             terms.append(term)
 
-        images = np.stack(images, 0)[terms is False]
-        measures = np.stack(measures, 0)[terms is False]
-        rewards = np.stack(rewards, 0)[terms is False]
-        terms = np.stack(terms, 0)[terms is False]
+        terms = np.array(terms)
+
+        images = np.stack(images, 0)[terms == False]
+        measures = np.stack(measures, 0)[terms == False]
+        rewards = np.stack(rewards, 0)[terms == False]
+        terms = np.stack(terms, 0)[terms == False]
 
         future_ids = np.fromiter((sim for i, sim in enumerate(ids) if not terms[i]), dtype=np.int64)
 

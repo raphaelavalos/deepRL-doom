@@ -62,7 +62,7 @@ class DOOM_Predictor():
         # TODO: need to check batch_gather output
         # Loss
         print(tf.batch_gather(prediction, tf.expand_dims(true_action, -1)).get_shape())
-        loss = tf.losses.mean_squared_error(true_future, tf.batch_gather(prediction, tf.expand_dims(true_action, -1)))
+        loss = tf.losses.mean_squared_error(true_future, tf.squeeze(tf.batch_gather(prediction, tf.expand_dims(true_action, -1)), 1))
 
         self.loss = loss
         # Optimizer
@@ -148,6 +148,8 @@ class DOOM_Predictor():
         with tf.variable_scope(name):
             tiled_expectation = tf.tile(expectation, [1, conf['action_nbr']], name="tile_expectation")
             prediction = tiled_expectation + action
+            prediction = tf.reshape(prediction,
+                                             (-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
         return prediction
 
     @staticmethod
@@ -189,9 +191,7 @@ class DOOM_Predictor():
 
         """
         with tf.variable_scope('choose_action'):
-            reshaped_prediction = tf.reshape(prediction,
-                                             (-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
             goal = tf.cast(goal, tf.float32)
-            weighted_actions = tf.reduce_sum(reshaped_prediction * goal, - 1)
+            weighted_actions = tf.reduce_sum(prediction * goal, - 1)
             action = tf.argmax(weighted_actions, axis=-1)
         return action

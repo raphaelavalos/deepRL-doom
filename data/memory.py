@@ -13,7 +13,7 @@ class Memory:
         self.counter = 0
         self._images = np.zeros((self.capacity,) + self.image_resolution, dtype=np.float32)
         self._measures = np.zeros((self.capacity, self.measure_dim), dtype=np.float32)
-        self._targets = np.zeros((self.capacity, len(conf['offsets_dim']) * self.measure_dim), dtype=np.float32)
+        self._targets = np.zeros((self.capacity, conf['offsets_dim'] * self.measure_dim), dtype=np.float32)
         self._actions = np.zeros((self.capacity, self.action_dim), dtype=np.int64)
         self.full_once = False
 

@@ -21,7 +21,7 @@ class DoomSimulator:
         self.term = False  # TODO: might be removed in favor of closing/opening the game however need to check speed
 
     def num_action_to_bool(self, action):
-        return np.array([bool(int(i)) for i in np.binary_repr(action, self.available_buttons)])
+        return np.array([bool(int(i)) for i in np.binary_repr(action, len(self.available_buttons))])
 
     def init_game(self):
         if not self.game_initialized:
@@ -56,10 +56,10 @@ class DoomSimulator:
         if action is None:
             action = self.get_random_action()
 
-        assert 0 <= action <= (2**self.available_buttons - 1), 'Unknown action!'
+        assert 0 <= action <= (2**len(self.available_buttons) - 1), 'Unknown action!'
 
         bool_action = self.num_action_to_bool(action)
-        reward = self._game.make_action(bool_action, self.args.skip_tic)
+        reward = self._game.make_action(list(bool_action), self.conf['skip_tic'])
         term = self._game.is_episode_finished() or self._game.is_player_dead()
 
         if term:
@@ -83,7 +83,7 @@ class DoomSimulator:
         return img, measure
 
     def get_random_action(self):
-        return np.random.randint(0, 2**self.available_buttons - 1, dtype=np.int64)
+        return np.random.randint(0, 2**len(self.available_buttons) - 1, dtype=np.int64)
 
 
 

@@ -19,7 +19,6 @@ class Agent:
         with self.graph.device(self.conf['device']):
             # Session creation
             self.sess = tf.Session(config=config)
-            #self.saver = tf.train.Saver()
             # Placeholder creation
             self._visual_placeholder = tf.placeholder(dtype=tf.float32,
                                                       shape=(None,) + conf['image_resolution'],
@@ -46,8 +45,11 @@ class Agent:
             self.learning_step = self.doom_predictor.learning_step
 
             # Initialise all variables
-            init = tf.initialize_all_variables
+            self.saver = tf.train.Saver()
+            init = tf.initialize_all_variables()
             self.sess.run([init])
+
+
 
         self.memory = Memory(conf)
         self.doom_simulator = MultiDoomSimulator(conf, self.memory)

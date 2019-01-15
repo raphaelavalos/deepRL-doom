@@ -22,7 +22,7 @@ if __name__ == '__main__':
     save_freq = args.save_frequency
     save_dir = args.save_dir
     batch_size = args.batch_size
-    agent = Agent(build_conf(args.mode, args.mode_path, args.nbr_of_simulators,get_device(args)))
+    agent = Agent(build_conf(args.mode, args.mode_path, args.nbr_of_simulators,get_device(args),args.skip_tic))
     epsilon = 1  
     for epoch in trange(epochs, desc="Epoch"):
         # We fill the memory in the while loop
