@@ -4,36 +4,53 @@ from .doom_simulator import DoomSimulator
 
 class MultiDoomSimulator:
 
-    def __init__(self, args, memory):
-        self.args = args
-        self.nbr_of_simulators = args.nbr_of_simulators
+    def __init__(self, conf, memory):
+        self.conf = conf
+        self.nbr_of_simulators = conf['nbr_of_simulators']
         self.memory = memory
-        self.simulators = [DoomSimulator(args['simulator'], memory, _id=i) for i in range(args.nbr_of_simulators)]
+        self.simulators = [DoomSimulator(conf, memory, _id=i) for i in range(conf['nbr_of_simulators'])]
 
-    def step(self, actions):
+    def init_simulators(self):
+        for simulator in self.simulators:
+            simulator.init_game()
+
+    def close_simulators(self):
+        for simulator in self.simulators:
+            simulator.close_game()
+
+    def new_episodes(self):
+        for simulator in self.simulators:
+            simulator.new_episode()
+
+    def step(self, actions, goals, ids):
+        ids = range(self.nbr_of_simulators) if ids is None else ids
+
         if actions is None:
-            actions = [None] * self.nbr_of_simulators
+            actions = [None] * len(ids)
 
-        assert len(actions) == self.nbr_of_simulators, "The nbr of actions and simulators don't match"
+        assert len(actions) == len(ids), "The nbr of actions and simulators don't match"
 
         images = []
         measures = []
         rewards = []
         terms = []
 
-        for simulator, action in zip(self.simulators, actions):
-            img, measure, reward, term = simulator.step(action)
+        for i, sim in enumerate(ids):
+            img, measure, reward, term = self.simulators[sim].step(actions[i], goals[i])
             images.append(img)
             measures.append(measure)
             rewards.append(reward)
             terms.append(term)
 
-        images = np.stack(images, 0)
-        measures = np.stack(measures, 0)
-        rewards = np.stack(rewards, 0)
-        terms = np.stack(terms, 0)
+        terms = np.array(terms)
+        future_ids = np.fromiter((sim for i, sim in enumerate(ids) if not terms[i]), dtype=np.int64)
 
-        return images, measures, rewards, terms
+        images = np.stack(images, 0)[terms == False]
+        measures = np.stack(measures, 0)[terms == False]
+        rewards = np.stack(rewards, 0)[terms == False]
+        terms = np.stack(terms, 0)[terms == False]
+
+        return images, measures, rewards, terms, future_ids
 
     def get_state(self):
         images = []
