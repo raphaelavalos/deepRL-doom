@@ -49,8 +49,7 @@ def get_options():
 
     pprint.pprint(vars(args))
 
-    if not os.path.exists(full_saving_path):
-        os.makedirs(full_saving_path)
+    os.makedirs(full_saving_path, exist_ok=True)
 
     with open(os.path.join(full_saving_path, 'args.json'), 'w') as f:
         json.dump(vars(args), f)

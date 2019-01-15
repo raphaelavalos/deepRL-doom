@@ -3,6 +3,7 @@ from Neural_network.predictor_v2 import DOOM_Predictor
 from simulator.multi_doom_simulator import MultiDoomSimulator
 from data.memory import Memory
 import numpy as np
+import os
 
 
 class Agent:
@@ -27,13 +28,13 @@ class Agent:
                                                            shape=(None, conf['measurement_dim']),
                                                            name='measurement_placeholder')
             self._goal_placeholder = tf.placeholder(dtype=tf.float32,
-                                                    shape=(None, conf['measurement_dim'] * conf['offsets_dim']),
+                                                    shape=(None, conf['measurement_dim']),
                                                     name="goal_placeholder")
             self._true_action_placeholder = tf.placeholder(dtype=tf.int32,
                                                            shape=(None,),
                                                            name="true_action_placeholder")
             self._true_future_placeholder = tf.placeholder(dtype=tf.float32,
-                                                           shape=(None, conf['measurement_dim'] * conf['offsets_dim']),
+                                                           shape=(None, conf['offsets_dim'], conf['measurement_dim']),
                                                            name='true_future_placeholder')
             self.doom_predictor = DOOM_Predictor(conf,
                                                  self._visual_placeholder,
@@ -46,10 +47,8 @@ class Agent:
 
             # Initialise all variables
             self.saver = tf.train.Saver()
-            init = tf.initialize_all_variables()
+            init = tf.global_variables_initializer()
             self.sess.run([init])
-
-
 
         self.memory = Memory(conf)
         self.doom_simulator = MultiDoomSimulator(conf, self.memory)
@@ -59,14 +58,14 @@ class Agent:
         running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
         self.doom_simulator.new_episodes()
         goal = np.random.rand(self.doom_simulator.nbr_of_simulators,
-                              self.conf['offsets_dim'] * self.conf['measurement_dim'])
+                              self.conf['measurement_dim'])
         images, measures = self.doom_simulator.get_state()
         while len(running_simulators) != 0:
             p = np.random.random()  # TODO: need to replace with a vector of len running_simulators
             if p > epsilon:
                 feed_dict = {self._visual_placeholder: images,
                              self._measurement_placeholder: measures,
-                             self._goal_placeholder: goal[running_simulators].reshape(-1, 1)}
+                             self._goal_placeholder: goal[running_simulators]}
                 next_actions = self.sess.run(self.doom_predictor.action_chooser, feed_dict=feed_dict)
                 images, measures, _, _, running_simulators = self.doom_simulator.step(next_actions, goal,
                                                                                       running_simulators)
@@ -74,17 +73,17 @@ class Agent:
                 images, measures, _, _, running_simulators = self.doom_simulator.step(None, goal, running_simulators)
 
     def get_learning_step(self, batch_size):
-        batch = self.memory.get_batch(batch_size)
-        feed_dict = { self._visual_placeholder: batch[0],
-                      self._measurement_placeholder: batch[1],
-                      self._goal_placeholder: batch[2],  # TODO: Make sure we reintroduce goal in get_batch
-                      self._true_action_placeholder: batch[3],
-                      self._true_future_placeholder: batch[4]}
+        images, measures, actions, targets, goals = self.memory.get_batch(batch_size)
+        feed_dict = {self._visual_placeholder: images,
+                     self._measurement_placeholder: measures,
+                     self._goal_placeholder: goals,  # TODO: Make sure we reintroduce goal in get_batch
+                     self._true_action_placeholder: actions,
+                     self._true_future_placeholder: targets}
 
         self.sess.run(self.learning_step,
                       feed_dict)
 
     def save_pred(self, path, epoch, step):
-        self.saver.save(self.sess, path + "epoch_%s_step_%s.tf" % (epoch, step))
+        self.saver.save(self.sess, os.path.join(path + "epoch_%s_step_%s.tf" % (epoch, step)))
 
         # To get predictions, learning_step... doom_predictor._predictions ..., do not forget to feed!

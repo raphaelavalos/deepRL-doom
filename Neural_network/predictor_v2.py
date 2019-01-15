@@ -13,6 +13,9 @@ class DOOM_Predictor():
         # For now we are saving the groups and intermediate outputs to facilitate debugging
         # After that will just need to call DOOM_Predictor._build_net to get prediction
 
+        # tile goal
+        goal_tiled = tf.tile(goal, [1, conf['offsets_dim']])
+
         # Perception
         conv_group, perception_output = DOOM_Predictor._build_perception(conf['perception'], visual)
         self._perception_conv_group = conv_group
@@ -26,7 +29,7 @@ class DOOM_Predictor():
         self._measurement_output = measurement_output
 
         # Goal
-        goal_group, goal_output = DOOM_Predictor._build_dense(conf['goal'], goal, 'goal')
+        goal_group, goal_output = DOOM_Predictor._build_dense(conf['goal'], goal_tiled, 'goal')
         self._goal_group = goal_group
         self._goal_output = goal_output
 
@@ -54,15 +57,15 @@ class DOOM_Predictor():
         self._prediction = prediction
 
         # Choose action
-        self._goal_for_action_selection = tf.constant(0)  # TODO: create tf.constant with value from conf
-        action_chooser = DOOM_Predictor._choose_action(conf, prediction,
-                                                       self._goal_for_action_selection)
+        self._goal_for_action_selection = tf.constant([[[0, 0, 0, 0.5, 0.5, 1]]], dtype=tf.float32)
+        # TODO: create tf.constant with value from conf
+        action_chooser = DOOM_Predictor._choose_action(conf['action'], prediction, self._goal_for_action_selection,
+                                                       goal)
         self.action_chooser = action_chooser
 
-        # TODO: need to check batch_gather output
         # Loss
-        print(tf.batch_gather(prediction, tf.expand_dims(true_action, -1)).get_shape())
-        loss = tf.losses.mean_squared_error(true_future, tf.squeeze(tf.batch_gather(prediction, tf.expand_dims(true_action, -1)), 1))
+        loss = tf.losses.mean_squared_error(true_future,
+                                            tf.squeeze(tf.batch_gather(prediction, tf.expand_dims(true_action, -1)), 1))
 
         self.loss = loss
         # Optimizer
@@ -149,14 +152,15 @@ class DOOM_Predictor():
             tiled_expectation = tf.tile(expectation, [1, conf['action_nbr']], name="tile_expectation")
             prediction = tiled_expectation + action
             prediction = tf.reshape(prediction,
-                                             (-1, conf['action_nbr'], conf['offsets_dim'] * conf['measurement_dim']))
+                                    (-1, conf['action_nbr'], conf['offsets_dim'], conf['measurement_dim']))
         return prediction
 
     @staticmethod
     def _build_net(conf, image, measurement, goal):
+        goal_tiled = tf.tile(goal, [1, conf['offsets_dim']])
         _, perception_output = DOOM_Predictor._build_perception(conf['perception'], image)
         _, measurement_output = DOOM_Predictor._build_dense(conf['measurement'], measurement, 'measurement')
-        _, goal_output = DOOM_Predictor._build_dense(conf['goal'], goal, 'goal')
+        _, goal_output = DOOM_Predictor._build_dense(conf['goal'], goal_tiled, 'goal')
         representation_j = tf.concat([perception_output, measurement_output, goal_output],
                                      axis=-1,
                                      name='representation_j')
@@ -178,20 +182,10 @@ class DOOM_Predictor():
         return learning_rate, optimizer, learning_step
 
     @staticmethod
-    def _choose_action(conf, prediction, goal):
-        """
-        Choose action
-
-        Args:
-            prediction (tf.Tensor): Tensor containing the prediction, shape=[batch, action_nbr*offsets_dim*measurement_dim]
-            goal (tf.Tensor): Tensor of the shape [1,1,offsets_dim*measure_dim] defining the weight of the prediction measures
-
-        Returns:
-            tf.Tensor: Tensor containing the index of the chosen actions, shape=[batch,]
-
-        """
+    def _choose_action(conf, prediction, goal_weigh, goal):
         with tf.variable_scope('choose_action'):
-            goal = tf.cast(goal, tf.float32)
-            weighted_actions = tf.reduce_sum(prediction * goal, - 1)
+            weighted_actions = tf.reduce_sum(
+                goal_weigh * tf.reduce_sum(prediction * tf.reshape(goal, (-1, 1, 1, conf['measurement_dim'])), -1),
+                -1)
             action = tf.argmax(weighted_actions, axis=-1)
         return action
