@@ -71,10 +71,32 @@ class Agent:
                              self._goal_placeholder: goal[running_simulators]}
                 next_actions = self.sess.run(self.doom_predictor.action_chooser, feed_dict=feed_dict)
 
-                images, measures, _, _, running_simulators = self.doom_simulator.step(next_actions, goal,
-                                                                                      running_simulators)
+                images, measures, _, _, running_simulators, _ = self.doom_simulator.step(next_actions, goal,
+                                                                                         running_simulators)
             else:
-                images, measures, _, _, running_simulators = self.doom_simulator.step(None, goal, running_simulators)
+                images, measures, _, _, running_simulators, _ = self.doom_simulator.step(None, goal,
+                                                                                         running_simulators)
+
+    def validate(self):
+        running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
+        self.doom_simulator.new_episodes()
+        goal = np.random.rand(self.doom_simulator.nbr_of_simulators,
+                              self.conf['measurement_dim'])
+        images, measures = self.doom_simulator.get_state()
+        f_measures = []
+        while len(running_simulators) != 0:
+            feed_dict = {self._visual_placeholder: images,
+                         self._measurement_placeholder: measures,
+                         self._goal_placeholder: goal[running_simulators]}
+            next_actions = self.sess.run(self.doom_predictor.action_chooser, feed_dict=feed_dict)
+
+            images, measures, _, _, running_simulators, f_measure = self.doom_simulator.step(next_actions, goal,
+                                                                                             running_simulators)
+
+            f_measures.append(f_measure)
+        f_measures = np.concatenate(f_measures)
+        return f_measures
+        # print('Medium measure at the end ', f_measures.mean())
 
     def get_learning_step(self, batch_size):
         images, measures, actions, targets, goals = self.memory.get_batch(batch_size)
