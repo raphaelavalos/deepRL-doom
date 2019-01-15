@@ -58,19 +58,27 @@ class Agent:
         p = np.random.random()
         if p > epsilon:
             images, measures = self.doom_simulator.get_state()
-            _feed_dict = {self._visual_placeholder: images,
+            feed_dict = {self._visual_placeholder: images,
                           self._measurement_placeholder: measures,
-                          self._goal_placeholder: self.doom_predictor._goal_for_action_selection}
+                          self._goal_placeholder: np.tile(self.doom_predictor._goal_for_action_selection,
+                                                          (self.conf['simulator']['nbr_of_simulators'],1))}
             # TODO : check is the size match for goal or if np.repeat needed
-            # TODO : Verify if we can have a feed dict with not all placeholders
-            next_actions = self.sess.run(self.doom_predictor._action_chooser, _feed_dict)
+            next_actions = self.sess.run(self.doom_predictor._action_chooser, feed_dict)
             self.doom_simulator.step(next_actions)
         else:
             self.doom_simulator.step(None)
 
     def get_learning_step(self, batch_size):
+        batch =  self.memory.get_batch(batch_size)
+        feed_dict = { self._visual_placeholder: batch[0],
+                      self._measurement_placeholder: batch[1],
+                      self._goal_placeholder: batch[2], # TODO: Make sure we reintroduce goal in get_batch
+                      self._true_action_placeholder: batch[3],
+                      self._true_future_placeholder: batch[4]}
+
+
         self.sess.run(self.learning_step,
-                      self.memory.get_batch(batch_size))  # TODO : probable issue with true action to verify
+                      feed_dict)
 
     def save_pred(self, path, epoch, step):
         self.saver.save(self.sess, path + "epoch_%s_step_%s.tf" % (epoch, step))
