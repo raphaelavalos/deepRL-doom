@@ -11,7 +11,6 @@ class MultiDoomSimulator:
         self.simulators = [DoomSimulator(args['simulator'], memory, _id=i) for i in range(args.nbr_of_simulators)]
 
     def step(self, actions):
-        # TODO: might not need goal
         if actions is None:
             actions = [None] * self.nbr_of_simulators
 

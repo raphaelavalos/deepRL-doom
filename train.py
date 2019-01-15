@@ -2,6 +2,7 @@ import tensorflow as tf
 from config.options import get_options
 from agent import Agent
 from tqdm import tqdm
+from Neural_network.config_v2 import build_conf
 
 # TODO : Create training loop calling agent with succession of fill memory/train predictor
 
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     save_freq = args.save_frequency
     save_dir = args.save_dir
     batch_size = args.batch_size
-    agent = Agent(args)
+    agent = Agent(build_conf(args.mode))
     epsilon = 1  # TODO : softcoder toussa
     for epoch in tqdm(range(epochs)):
         # We fill the memory in the while loop
