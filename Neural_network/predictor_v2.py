@@ -94,7 +94,7 @@ class DOOM_Predictor():
                 conv = tf.layers.conv2d(inputs=_input,
                                         filters=conv_conf['filters'],
                                         kernel_size=conv_conf['kernel_size'],
-                                        strides=conv_conf['strides'],
+                                        strides=conv_conf['stride'],
                                         activation=activation,
                                         kernel_initializer=xavier_init,
                                         bias_initializer=xavier_init,

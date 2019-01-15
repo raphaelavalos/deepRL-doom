@@ -1,5 +1,5 @@
 # DOOM_Predictor_v2 configuration dictionary
-def build_conf(mode, mode_path, nbr_of_simulators):
+def build_conf(mode, mode_path, nbr_of_simulators, device):
     conf = {}
     conf['choose_action'] = {}
 
@@ -77,5 +77,7 @@ def build_conf(mode, mode_path, nbr_of_simulators):
     conf['nbr_of_simulators'] = nbr_of_simulators
     conf['memory'] = {}
     conf['memory']['capacity'] = 1000  # TODO: Change this value
+    conf['device'] = device
+    conf['image_resolution'] = (1, 84, 84)
 
     return conf

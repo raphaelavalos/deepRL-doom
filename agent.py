@@ -10,32 +10,31 @@ class Agent:
     def __init__(self, conf):
         self.conf = conf
         self.graph = tf.Graph()
-        self.saver = tf.train.Saver()
 
         # Configuration for session
         config = tf.ConfigProto()
         config.gpu_options.allow_growth = True
         config.allow_soft_placement = False
 
-        with self.graph.device(self.conf.device):
+        with self.graph.device(self.conf['device']):
             # Session creation
             self.sess = tf.Session(config=config)
-
+            #self.saver = tf.train.Saver()
             # Placeholder creation
             self._visual_placeholder = tf.placeholder(dtype=tf.float32,
-                                                      shape=(-1,) + conf['image_resolution'],
+                                                      shape=(None,) + conf['image_resolution'],
                                                       name='visual_placeholder')
             self._measurement_placeholder = tf.placeholder(dtype=tf.float32,
-                                                           shape=(-1, conf['measurement_dim']),
+                                                           shape=(None, conf['measurement_dim']),
                                                            name='measurement_placeholder')
             self._goal_placeholder = tf.placeholder(dtype=tf.float32,
-                                                    shape=(-1, conf['measurement_dim'] * conf['offsets_dim']),
+                                                    shape=(None, conf['measurement_dim'] * conf['offsets_dim']),
                                                     name="goal_placeholder")
             self._true_action_placeholder = tf.placeholder(dtype=tf.int32,
-                                                           shape=(-1,),
+                                                           shape=(None,),
                                                            name="true_action_placeholder")
             self._true_future_placeholder = tf.placeholder(dtype=tf.float32,
-                                                           shape=(-1, conf['measurement_dim'] * conf['offsets_dim']),
+                                                           shape=(None, conf['measurement_dim'] * conf['offsets_dim']),
                                                            name='true_future_placeholder')
             self.doom_predictor = DOOM_Predictor(conf,
                                                  self._visual_placeholder,
