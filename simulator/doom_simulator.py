@@ -15,9 +15,10 @@ class DoomSimulator:
         self.resolution = (84, 84, 1)  # TODO: pass in arg
         self.num_measure = self._game.get_available_game_variables_size()
         self.available_buttons = self._game.get_available_buttons()
-        self.episode_count = 0
+        self.episode_count = -1
         self.game_initialized = False
         self.tmp_memory = TmpMemory(args, memory, _id)
+        self.term = False  # TODO: might be removed in favor of closing/opening the game however need to check speed
 
     def num_action_to_bool(self, action):
         return np.array([bool(int(i)) for i in np.binary_repr(action, self.available_buttons)])
@@ -26,18 +27,21 @@ class DoomSimulator:
         if not self.game_initialized:
             self._game.init()
             self.game_initialized = True
+        self.term = False
 
     def close_game(self):
         if self.game_initialized:
             self._game.close()
             self.game_initialized = False
+        self.term = True
 
     def new_episode(self):
         self.tmp_memory.build_commit_reset()
+        self.term = False
         self._game.new_episode()
         self.episode_count += 1
 
-    def step(self, action):
+    def step(self, action, goal):
         '''
         Perform step
         Args:
@@ -46,8 +50,9 @@ class DoomSimulator:
 
         Returns:
         '''
+        if self.term is True:
+            return np.zeros(self.resolution, dtype=np.uint8), np.zeros((self.num_measure,), dtype=np.uint32), -1, True
 
-        # TODO: see if goal is really needed
         if action is None:
             action = self.get_random_action()
 
@@ -58,14 +63,14 @@ class DoomSimulator:
         term = self._game.is_episode_finished() or self._game.is_player_dead()
 
         if term:
-            self.new_episode()  # Restart new episode to keep with the flow
+            self.term = True
             img = np.zeros(self.resolution, dtype=np.uint8)
             measure = np.zeros((self.num_measure,), dtype=np.uint32)
 
         else:
             img, measure = self.get_state()
 
-        self.tmp_memory.add(img, measure, action)
+        self.tmp_memory.add(img, measure, action, goal)
 
         return img, measure, reward, term
 

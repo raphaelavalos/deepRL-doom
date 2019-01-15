@@ -11,6 +11,7 @@ class TmpMemory:
         self._images = []
         self._measures = []
         self._actions = []
+        self._goal = []
         self._target = None
         self.built = False
 
@@ -21,10 +22,11 @@ class TmpMemory:
         self._target = None
         self.built = False
 
-    def add(self, image, measure, action):
+    def add(self, image, measure, action, goal):
         self._images.append(image)
         self._measures.append(measure)
         self._actions.append(action)
+        self._goal.append(goal)
 
     def build(self):
         if len(self._images) <= self.time_offset[-1]:
@@ -42,7 +44,7 @@ class TmpMemory:
     def commit(self):
         assert self.built, "Memory not built can't commit!"
         if len(self._images) != 0:
-            self.memory.add_experience(self._images, self._measures, self._actions, self._target, self.id)
+            self.memory.add_experience(self._images, self._measures, self._actions, self._goal, self._target, self.id)
 
     def build_commit_reset(self):
         self.build()

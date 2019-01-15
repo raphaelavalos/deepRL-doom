@@ -17,6 +17,7 @@ class Memory:
         self._actions = np.zeros((self.capacity, self.action_dim), dtype=np.int64)
         self.full_once = False
 
+    # TODO: might require a lock
     def add_experience(self, images, measures, actions, targets):
         size = len(images)
         if self.counter + size < self.capacity:
