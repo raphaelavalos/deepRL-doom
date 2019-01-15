@@ -16,7 +16,7 @@ def get_device(args):
 def get_options():
     parser = argparse.ArgumentParser(description="Learning To Act By Predicting The Future")
     parser.add_argument('--epoch', default=100, type=int, help="The number of epoch to train", required=False)
-    parser.add_argument('--step', default=100, type=int, help="The number of steps per epoch", required=False)
+    parser.add_argument('--step', default=500, type=int, help="The number of steps per epoch", required=False)
     parser.add_argument('--architecture', default="basic", type=str, help="The type of architecture, (basic or large",
                         required=False)
     parser.add_argument('--save_dir', default="experiments", type=str, help="The saving directory", required=False)
