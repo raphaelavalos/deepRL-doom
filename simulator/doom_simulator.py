@@ -70,6 +70,7 @@ class DoomSimulator:
         else:
             img, measure = self.get_state()
 
+
         self.tmp_memory.add(img, measure, action, goal)
 
         return img, measure, reward, term

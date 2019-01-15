@@ -80,7 +80,7 @@ def build_conf(mode, mode_path, nbr_of_simulators, device, skip_tic):
     conf['memory'] = {}
     conf['memory']['capacity'] = 1000  # TODO: Change this value
     conf['device'] = device
-    conf['image_resolution'] = (1, 84, 84)
+    conf['image_resolution'] = (84, 84, 1)
     conf['offsets'] = [1, 2, 4, 8, 16, 32]
     conf['skip_tic'] = skip_tic
     return conf

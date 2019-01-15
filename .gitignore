@@ -106,3 +106,4 @@ venv.bak/
 \.idea/
 
 experiments/
+_vizdoom\.ini
