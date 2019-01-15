@@ -57,13 +57,12 @@ class DOOM_Predictor():
         self._goal_for_action_selection = tf.constant(0)  # TODO: create tf.constant with value from conf
         action_chooser = DOOM_Predictor._choose_action(conf['choose_action'], prediction,
                                                        self._goal_for_action_selection)
-        self._action_chooser = action_chooser
+        self.action_chooser = action_chooser
 
-        # TODO: Loss might not compile - shouldn't use np.arange; there is a batch method to do so - need to check TSP
+        # TODO: need to check batch_gather output
         # Loss
-        loss = tf.losses.mean_squared_error(true_future,
-                                            tf.gather_nd(self._prediction,
-                                                         tf.stack(((np.arange(conf.batch_size)), true_action), axis=1)))
+        loss = tf.losses.mean_squared_error(true_future, tf.batch_gather(prediction, tf.expand_dims(true_action, -1)))
+
         self.loss = loss
         # Optimizer
         learning_rate, optimizer, learning_step = DOOM_Predictor._build_optimizer(conf['optimizer'], loss)

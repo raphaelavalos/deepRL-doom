@@ -53,20 +53,23 @@ class Agent:
 
         self.memory = Memory(conf.memory)  # TODO : See how handle args with train
         self.doom_simulator = MultiDoomSimulator(conf.simulator, self.memory)  # TODO See how handle args with train
+        self.doom_simulator.init_simulators()
 
     def run_episode(self, epsilon):  # TODO : pass epsilon as arg
-        p = np.random.random()
-        if p > epsilon:
-            images, measures = self.doom_simulator.get_state()
-            _feed_dict = {self._visual_placeholder: images,
-                          self._measurement_placeholder: measures,
-                          self._goal_placeholder: self.doom_predictor._goal_for_action_selection}
-            # TODO : check is the size match for goal or if np.repeat needed
-            # TODO : Verify if we can have a feed dict with not all placeholders
-            next_actions = self.sess.run(self.doom_predictor._action_chooser, _feed_dict)
-            self.doom_simulator.step(next_actions)
-        else:
-            self.doom_simulator.step(None)
+        running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
+        self.doom_simulator.new_episodes()
+        goal = np.random.rand(self.doom_simulator.nbr_of_simulators, 3)  # TODO: replace 3
+        images, measures = self.doom_simulator.get_state()
+        while len(running_simulators) != 0:
+            p = np.random.random()  # TODO: need to replace with a vector of len running_simulators
+            if p > epsilon:
+                feed_dict = {self._visual_placeholder: images,
+                             self._measurement_placeholder: measures,
+                             self._goal_placeholder: goal[running_simulators].reshape(-1, 1)}
+                next_actions = self.sess.run(self.doom_predictor.action_chooser, feed_dict=feed_dict)
+                images, measures, _, _, running_simulators = self.doom_simulator.step(next_actions, running_simulators)
+            else:
+                images, measures, _, _, running_simulators = self.doom_simulator.step(None, running_simulators)
 
     def get_learning_step(self, batch_size):
         self.sess.run(self.learning_step,

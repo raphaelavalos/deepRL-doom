@@ -1,7 +1,7 @@
 import tensorflow as tf
 from config.options import get_options
 from agent import Agent
-from tqdm import tqdm
+from tqdm import trange
 from Neural_network.config_v2 import build_conf
 
 # TODO : Create training loop calling agent with succession of fill memory/train predictor
@@ -25,14 +25,14 @@ if __name__ == '__main__':
     batch_size = args.batch_size
     agent = Agent(build_conf(args.mode))
     epsilon = 1  # TODO : softcoder toussa
-    for epoch in tqdm(range(epochs)):
+    for epoch in trange(epochs, desc="Epoch"):
         # We fill the memory in the while loop
         while not agent.memory.full_once:
             print('Filling memory')  # TODO Remove once we know it works
             agent.run_episode(epsilon)
         epsilon *= 0.9
         # Train predictor and save every save_freq epochs
-        for step in tqdm(range(steps)):
+        for step in trange(args.step, desc="Step", leave=False):
             agent.get_learning_step(batch_size)
 
             if (step % save_freq) == 0:
