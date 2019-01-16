@@ -22,6 +22,20 @@ class MultiDoomSimulator:
         for simulator in self.simulators:
             simulator.new_episode()
 
+    def reset_tmp_memory(self):
+        for simulator in self.simulators:
+            simulator.reset_tmp_memory()
+
+    def build_commit_reset(self, max_steps=None):
+        for simulator in self.simulators:
+            simulator.build_commit_reset(max_steps)
+
+    def get_duration(self):
+        duration = np.zeros((self.nbr_of_simulators,), dtype=np.int64)
+        for i, simulator in enumerate(self.simulators):
+            duration[i] = simulator.duration
+        return duration
+
     def step(self, actions, goals, ids):
         ids = range(self.nbr_of_simulators) if ids is None else ids
 

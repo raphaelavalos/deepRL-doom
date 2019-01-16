@@ -46,6 +46,15 @@ class Agent:
             self.learning_step = self.doom_predictor.learning_step
             self.loss_summary = tf.summary.scalar("Loss", self.doom_predictor.loss)
             self.counter = 0
+            self.validate_counter = 0
+
+            # Duration log
+            self._duration_placeholder = tf.placeholder(dtype=tf.float32,
+                                                        shape=(None,),
+                                                        name='duration_placeholder')
+            duration_mean, duration_std = tf.nn.moments(self._duration_placeholder, 0)
+            self.duration_summary_mean = tf.summary.scalar("Duration_mean", duration_mean)
+            self.duration_summary_std = tf.summary.scalar("Duration_std", duration_std)
 
             # Initialise all variables
             self.saver = tf.train.Saver()
@@ -57,7 +66,7 @@ class Agent:
         self.doom_simulator = MultiDoomSimulator(conf, self.memory)
         self.doom_simulator.init_simulators()
 
-    def run_episode(self, epsilon):
+    def run_episode(self, epsilon, max_steps=None):
         running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
         self.doom_simulator.new_episodes()
         goal = np.random.rand(self.doom_simulator.nbr_of_simulators,
@@ -76,6 +85,7 @@ class Agent:
             else:
                 images, measures, _, _, running_simulators, _ = self.doom_simulator.step(None, goal,
                                                                                          running_simulators)
+        self.doom_simulator.build_commit_reset(max_steps)
 
     def validate(self):
         running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
@@ -94,8 +104,16 @@ class Agent:
                                                                                              running_simulators)
 
             f_measures.append(f_measure)
+        duration = self.doom_simulator.get_duration()
+        duration_mean_summary, duration_std_summary = self.sess.run([self.duration_summary_mean,
+                                                                     self.duration_summary_std],
+                                                                    feed_dict={self._duration_placeholder: duration})
+        self.writer.add_summary(duration_mean_summary, self.validate_counter)
+        self.writer.add_summary(duration_std_summary, self.validate_counter)
+        self.validate_counter += 1
+        self.doom_simulator.reset_tmp_memory()
         f_measures = np.concatenate(f_measures)
-        return f_measures
+        return f_measures, duration
         # print('Medium measure at the end ', f_measures.mean())
 
     def get_learning_step(self, batch_size):
