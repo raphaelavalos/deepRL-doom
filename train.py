@@ -29,11 +29,17 @@ if __name__ == '__main__':
         for step in trange(args.step, desc="Step", leave=False):
             agent.get_learning_step(batch_size)
 
-        val = []
-        for _ in trange(4, desc="Validation", leave=False):
-            val.append(agent.validate())
-        val = np.concatenate(val)
-        print('Validation: %.3f +/- %.3f' % (val.mean(), val.std()))  # TODO: change it for modes 3 & 4
+        f_measures = []
+        durations = []
+        for _ in trange(1, desc="Validation", leave=False):
+            f_measure, duration = agent.validate()
+            f_measures.append(f_measure)
+            durations.append(duration)
+
+        f_measures = np.concatenate(f_measures)
+        durations = np.concatenate(durations)
+        print('Health: %.3f +/- %.3f' % (f_measures.mean(), f_measures.std()))  # TODO: change it for modes 3 & 4
+        # print('Duration: %.3f +/- %.3f' % (durations.mean(), durations.std()))  # TODO: change it for modes 3 & 4
 
         if (epoch % save_freq) == 0:
             agent.save_pred(save_dir, epoch)

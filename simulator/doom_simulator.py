@@ -16,6 +16,7 @@ class DoomSimulator:
         self.num_measure = self._game.get_available_game_variables_size()
         self.available_buttons = self._game.get_available_buttons()
         self.episode_count = -1
+        self.duration = 0
         self.game_initialized = False
         self.tmp_memory = TmpMemory(conf, memory, _id)
         self.term = False  # TODO: might be removed in favor of closing/opening the game however need to check speed
@@ -36,10 +37,17 @@ class DoomSimulator:
         self.term = True
 
     def new_episode(self):
-        self.tmp_memory.build_commit_reset()
+        self.tmp_memory.reset()
         self.term = False
+        self.duration = 0
         self._game.new_episode()
         self.episode_count += 1
+
+    def build_commit_reset(self, max_steps=None):
+        self.tmp_memory.build_commit_reset(max_steps)
+
+    def reset_tmp_memory(self):
+        self.tmp_memory.reset()
 
     def step(self, action, goal):
         '''
@@ -71,6 +79,7 @@ class DoomSimulator:
             img, measure = self.get_state()
 
         self.tmp_memory.add(img, measure, action, goal)
+        self.duration += 1
 
         return img, measure, reward, term
 

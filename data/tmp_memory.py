@@ -43,12 +43,20 @@ class TmpMemory:
             self._goals = np.stack(self._goals[:-self.time_offset[-1]], 0)
         self.built = True
 
-    def commit(self):
+    def commit(self, max_steps=None):
         assert self.built, "Memory not built can't commit!"
         if len(self._images) != 0:
-            self.memory.add_experience(self._images, self._measures, self._actions, self._targets, self._goals)
+            if max_steps is None or max_steps <= len(self._images):
+                self.memory.add_experience(self._images, self._measures, self._actions, self._targets, self._goals)
+            else:
+                index = np.random.choice(len(self._images), max_steps, replace=False)
+                self.memory.add_experience(self._images[index],
+                                           self._measures[index],
+                                           self._actions[index],
+                                           self._targets[index],
+                                           self._goals[index])
 
-    def build_commit_reset(self):
+    def build_commit_reset(self, max_steps=None):
         self.build()
-        self.commit()
+        self.commit(max_steps)
         self.reset()
