@@ -136,4 +136,4 @@ class Agent:
 
     def random_exploration_prob(self,epoch):
         #Here a epoch is a train on one batch plus adding the new experiences to memory
-        return lambda step: (0.02 + 145000. / (float(epoch) + 150000.))
+        return (0.02 + 145000. / (float(epoch) + 150000.))
