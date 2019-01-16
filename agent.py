@@ -115,3 +115,7 @@ class Agent:
         self.saver.save(self.sess, os.path.join(path + "epoch_%s.tf" % epoch))
 
         # To get predictions, learning_step... doom_predictor._predictions ..., do not forget to feed!
+
+    def random_exploration_prob(self,epoch):
+        #Here a epoch is a train on one batch plus adding the new experiences to memory
+        return lambda step: (0.02 + 145000. / (float(epoch) + 150000.))

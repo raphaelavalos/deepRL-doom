@@ -15,8 +15,8 @@ def get_device(args):
 
 def get_options():
     parser = argparse.ArgumentParser(description="Learning To Act By Predicting The Future")
-    parser.add_argument('--epoch', default=100, type=int, help="The number of epoch to train", required=False)
-    parser.add_argument('--step', default=500, type=int, help="The number of steps per epoch", required=False)
+    parser.add_argument('--epoch', default=400, type=int, help="The number of epoch to train", required=False)
+    parser.add_argument('--step', default=800, type=int, help="The number of steps per epoch", required=False)
     parser.add_argument('--architecture', default="basic", type=str, help="The type of architecture, (basic or large",
                         required=False)
     parser.add_argument('--save_dir', default="experiments", type=str, help="The saving directory", required=False)
@@ -28,7 +28,7 @@ def get_options():
     parser.add_argument('--mode', type=int, default=1, choices=[1, 2, 3, 4], help="Scenario number 1,2,3 or 4",
                         required=False)
     parser.add_argument('--skip_tic', type=int, default=4, help="Number of frames skipped (default:4)", required=False)
-    parser.add_argument('--memory', type=int, default=10000, help="Memory capacity", required=False)
+    parser.add_argument('--memory', type=int, default=20000, help="Memory capacity", required=False)
     parser.add_argument('--nbr_of_simulators', default=8, type=int, help='Number of simulators to run in parallel',
                         required=False)
     parser.add_argument('--save_frequency', default=10,
