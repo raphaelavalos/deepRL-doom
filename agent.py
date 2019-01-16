@@ -66,11 +66,15 @@ class Agent:
         self.doom_simulator = MultiDoomSimulator(conf, self.memory)
         self.doom_simulator.init_simulators()
 
-    def run_episode(self, epsilon, max_steps=None):
+    def run_episode(self, epsilon, max_steps=None, random=False):
         running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
         self.doom_simulator.new_episodes()
-        goal = np.random.rand(self.doom_simulator.nbr_of_simulators,
-                              self.conf['measurement_dim'])
+        if random:
+            goal = np.random.rand(self.doom_simulator.nbr_of_simulators,
+                                  self.conf['measurement_dim'])
+        else :
+            goal = np.ones((self.doom_simulator.nbr_of_simulators,
+                                  self.conf['measurement_dim']))
         images, measures = self.doom_simulator.get_state()
         while len(running_simulators) != 0:
             p = np.random.random()  # TODO: need to replace with a vector of len running_simulators
@@ -136,4 +140,4 @@ class Agent:
 
     def random_exploration_prob(self,epoch):
         #Here a epoch is a train on one batch plus adding the new experiences to memory
-        return (0.02 + 145000. / (float(epoch) + 150000.))
+        return (0.02 + 145000. / (8*float(epoch) + 150000.))
