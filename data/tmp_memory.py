@@ -39,7 +39,7 @@ class TmpMemory:
             targets = [np.roll(measures, -offset, 0)[:-self.time_offset[-1]] for offset in self.time_offset]
             targets = np.stack(targets, 1)
             self._measures = measures[:-self.time_offset[-1]]
-            self._targets = targets
+            self._targets = targets - np.expand_dims(self._measures, 1)
             self._goals = np.stack(self._goals[:-self.time_offset[-1]], 0)
         self.built = True
 

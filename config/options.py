@@ -15,7 +15,7 @@ def get_device(args):
 
 def get_options():
     parser = argparse.ArgumentParser(description="Learning To Act By Predicting The Future")
-    parser.add_argument('--epoch', default=100000, type=int, help="The number of epoch to train", required=False)
+    parser.add_argument('--epoch', default=102500, type=int, help="The number of epoch to train", required=False)
     parser.add_argument('--step', default=8, type=int, help="The number of steps per epoch", required=False)
     parser.add_argument('--architecture', default="basic", type=str, help="The type of architecture, (basic or large",
                         required=False)
@@ -25,7 +25,7 @@ def get_options():
     parser.add_argument('--cuda', default=True, type=bool, help="Use cuda (default True)", required=False)
     parser.add_argument('--gpu', type=int, default=0, help="The id of the GPU, -1 for CPU (default: 0).",
                         required=False)
-    parser.add_argument('--mode', type=int, default=1, choices=[1, 2, 3, 4], help="Scenario number 1,2,3 or 4",
+    parser.add_argument('--mode', type=int, default=2, choices=[1, 2, 3, 4], help="Scenario number 1,2,3 or 4",
                         required=False)
     parser.add_argument('--skip_tic', type=int, default=4, help="Number of frames skipped (default:4)", required=False)
     parser.add_argument('--memory', type=int, default=20000, help="Memory capacity", required=False)
@@ -41,9 +41,9 @@ def get_options():
                         required=False)
     parser.add_argument('--learning_rate', type=float, default=1e-4, help="Learning rate default 0.0001",
                         required=False)
-    parser.add_argument('--decay_rate', type=float, default=0.9, help="Decay rate default: 0.9",
+    parser.add_argument('--decay_rate', type=float, default=0.3, help="Decay rate default: 0.3",
                         required=False)
-    parser.add_argument('--decay_steps', type=int, default=1000, help="Decay step",
+    parser.add_argument('--decay_steps', type=int, default=250000, help="Decay step size",
                         required=False)
 
     args = parser.parse_args()

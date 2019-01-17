@@ -77,11 +77,14 @@ class DoomSimulator:
 
         else:
             img, measure = self.get_state()
+            # Preprocess
+            img = img / 255. - 0.5
+            measure = measure / 100. - 0.5
 
         self.tmp_memory.add(img, measure, action, goal)
         self.duration += 1
 
-        return img, measure/30, reward, term # TODO: do it with args
+        return img, measure, reward, term
 
     def get_state(self):
         state = self._game.get_state()

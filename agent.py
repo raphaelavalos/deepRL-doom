@@ -72,9 +72,9 @@ class Agent:
         if random:
             goal = np.random.rand(self.doom_simulator.nbr_of_simulators,
                                   self.conf['measurement_dim'])
-        else :
+        else:
             goal = np.ones((self.doom_simulator.nbr_of_simulators,
-                                  self.conf['measurement_dim']))
+                            self.conf['measurement_dim']))
         images, measures = self.doom_simulator.get_state()
         while len(running_simulators) != 0:
             p = np.random.random()  # TODO: need to replace with a vector of len running_simulators
@@ -138,6 +138,6 @@ class Agent:
 
         # To get predictions, learning_step... doom_predictor._predictions ..., do not forget to feed!
 
-    def random_exploration_prob(self,epoch):
-        #Here a epoch is a train on one batch plus adding the new experiences to memory
-        return (0.02 + 145000. / (8*float(epoch) + 150000.))
+    def random_exploration_prob(self, epoch):
+        # Here a epoch is a train on one batch plus adding the new experiences to memory
+        return 0.02 + 145000. / (8 * float(epoch) + 150000.)
