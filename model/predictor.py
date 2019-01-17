@@ -173,7 +173,7 @@ class DOOM_Predictor():
         return learning_rate, optimizer, learning_step, detailed_summary, param_summary
 
     @staticmethod
-    def _choose_action(conf, prediction, goal_weigh, goal):
+    def _choose_action(conf, prediction, goal_weigh, goal, multinomial=True):
         with tf.variable_scope('choose_action'):
             if goal is None:
                 assert conf['measurement_dim'] in [1, 3], 'Measurement dim different from 1 and 3'
@@ -184,5 +184,8 @@ class DOOM_Predictor():
             weighted_actions = tf.reduce_sum(
                 goal_weigh * tf.reduce_sum(prediction * tf.reshape(goal, (-1, 1, 1, conf['measurement_dim'])), -1),
                 -1)
-            action = tf.argmax(weighted_actions, axis=-1)
+            if multinomial:
+                action = tf.reshape(tf.multinomial(weighted_actions, 1), (-1,))
+            else:
+                action = tf.argmax(weighted_actions, axis=-1)
         return action

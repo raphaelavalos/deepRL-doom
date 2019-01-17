@@ -1,5 +1,5 @@
 import numpy as np
-
+import collections
 
 class Memory:
 
@@ -55,3 +55,6 @@ class Memory:
         else:
             goals = None
         return images, measures, actions, targets, goals
+
+    def print_values(self):
+        print(collections.Counter(self._actions))

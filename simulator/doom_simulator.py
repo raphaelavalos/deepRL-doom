@@ -30,6 +30,13 @@ class DoomSimulator:
             4: np.array([True, False, False]),
             5: np.array([True, False, True]),
         }
+        self.num_action_to_bool = {
+            0: np.array([False, False, True]),
+            1: np.array([False, True, False]),
+            2: np.array([False, True, True]),
+            3: np.array([True, False, False]),
+            4: np.array([True, False, True]),
+        }
 
     # def num_action_to_bool(self, action):
     #     if len(self.available_buttons) == 3:

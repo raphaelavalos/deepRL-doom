@@ -62,6 +62,9 @@ class Agent:
             self._fmeasure_placeholder = tf.placeholder(dtype=tf.float32,
                                                         shape=(None, conf['measurement_dim']),
                                                         name='fmeasure_placeholder')
+            self._actions_placeholder = tf.placeholder(dtype=tf.float32,
+                                                       shape=(None,),
+                                                       name='actions_placeholder')
             duration_mean, duration_std = tf.nn.moments(self._duration_placeholder, 0)
             duration_sum = tf.summary.tensor_summary("duration_tensor", self._duration_placeholder)
             duration_hist_sum = tf.summary.histogram("duration_tensor_hist", self._duration_placeholder)
@@ -69,12 +72,16 @@ class Agent:
             duration_std_sum = tf.summary.scalar("duration_std", duration_std)
             fmeasure_hist_sum = tf.summary.histogram("fmeasures_hist", self._fmeasure_placeholder)
             fmeasure_sum = tf.summary.tensor_summary("fmeasures_tensor", self._fmeasure_placeholder)
+            actions_hist_sum = tf.summary.histogram("actions_hist", self._actions_placeholder)
+            actions_sum = tf.summary.tensor_summary("actions_tensor", self._actions_placeholder)
             self.validation_summary = tf.summary.merge([duration_mean_sum,
                                                         duration_std_sum,
                                                         duration_sum,
                                                         duration_hist_sum,
                                                         fmeasure_hist_sum,
-                                                        fmeasure_sum],
+                                                        fmeasure_sum,
+                                                        actions_hist_sum,
+                                                        actions_sum],
                                                        name="Validation")
             self.detailed_summary = self.doom_predictor.detailed_summary
             self.param_summary = self.doom_predictor.param_summary
@@ -117,6 +124,7 @@ class Agent:
     def validate(self):
         f_measures = []
         durations = []
+        actions = []
         for _ in trange(20, desc="Validation", leave=False):
             running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
             self.doom_simulator.new_episodes()
@@ -131,23 +139,24 @@ class Agent:
                 if self.use_goal:
                     feed_dict[self._goal_placeholder] = goal[running_simulators]
                 next_actions = self.sess.run(self.doom_predictor.action_chooser, feed_dict=feed_dict)
-
                 images, measures, _, _, running_simulators, f_measure = self.doom_simulator.step(next_actions, goal,
                                                                                                  running_simulators)
 
-                f_measures.append(f_measure)
+                actions.append(next_actions)
             duration, f_measure = self.doom_simulator.get_duration_and_measurements()
             durations.append(duration)
             f_measures.append(f_measure)
         f_measures = np.concatenate(f_measures, 0)
         durations = np.concatenate(durations)
+        actions = np.concatenate(actions, 0)
         validation_summary = self.sess.run(self.validation_summary,
                                            feed_dict={self._duration_placeholder: durations,
-                                                      self._fmeasure_placeholder: f_measures})
+                                                      self._fmeasure_placeholder: f_measures,
+                                                      self._actions_placeholder: actions})
         self.writer.add_summary(validation_summary, self.validate_counter)
         self.validate_counter += 1
         self.doom_simulator.reset_tmp_memory()
-        return f_measures, duration
+        return f_measures, durations
 
     def training_step(self, batch_size):
         images, measures, actions, targets, goals = self.memory.get_batch(batch_size)
@@ -174,3 +183,7 @@ class Agent:
     def random_exploration_prob(epoch):
         # Here a epoch is a train on one batch plus adding the new experiences to memory
         return 0.02 + 145000. / (8 * float(epoch) + 150000.)
+
+    def print_memory(self):
+        self.memory.print_values()
+

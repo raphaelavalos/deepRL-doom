@@ -5,7 +5,7 @@ def build_conf(args):
     conf = {}
 
     if args.mode in [1, 2]:
-        conf['action_nbr'] = 6
+        conf['action_nbr'] = 5
         conf['offsets_dim'] = 6
         conf['measurement_dim'] = 1
 
