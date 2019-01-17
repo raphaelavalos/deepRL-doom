@@ -1,6 +1,7 @@
 import numpy as np
 import collections
 
+
 class Memory:
 
     def __init__(self, conf):
@@ -10,7 +11,6 @@ class Memory:
         self.nbr_simulators = conf['nbr_of_simulators']
         self.image_resolution = (84, 84, 1)  # TODO: pass in arg
         self.measure_dim = 1  # TODO: pass in arg
-        self.action_dim = 8  # TODO: pass in arg
         self.counter = 0
         self._images = np.zeros((self.capacity,) + self.image_resolution, dtype=np.float32)
         self._measures = np.zeros((self.capacity, self.measure_dim), dtype=np.float32)
@@ -58,3 +58,14 @@ class Memory:
 
     def print_values(self):
         print(collections.Counter(self._actions))
+
+    def reduce(self, size):
+        self.full_once = False
+        self.capacity = size
+        self.counter = 0
+        self._images = np.zeros((self.capacity,) + self.image_resolution, dtype=np.float32)
+        self._measures = np.zeros((self.capacity, self.measure_dim), dtype=np.float32)
+        self._targets = np.zeros((self.capacity, self.conf['offsets_dim'], self.measure_dim), dtype=np.float32)
+        if self.use_goal:
+            self._goals = np.zeros((self.capacity, self.measure_dim), dtype=np.float32)
+        self._actions = np.zeros((self.capacity,), dtype=np.int64)

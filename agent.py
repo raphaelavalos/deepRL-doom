@@ -19,6 +19,8 @@ class Agent:
         config.gpu_options.allow_growth = True
         config.allow_soft_placement = False
 
+        tf.random.set_random_seed(124)
+
         with self.graph.device(self.conf['device']):
             # Session creation
             self.sess = tf.Session(config=config)
@@ -50,6 +52,14 @@ class Agent:
                                                  self._goal_placeholder,
                                                  self._true_action_placeholder,
                                                  self._true_future_placeholder)
+
+            self.dataset = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(self._visual_placeholder),
+                                                tf.data.Dataset.from_tensor_slices(self._measurement_placeholder),
+                                                tf.data.Dataset.from_tensor_slices(self._true_action_placeholder),
+                                                tf.data.Dataset.from_tensor_slices(self._true_future_placeholder)))
+            # self.dataset = self.dataset.batch(64)
+            # self.dataset = self.dataset.repeat()
+            # self.iterator = self.dataset.make_initializable_iterator()
 
             self.learning_step = self.doom_predictor.learning_step
             self.counter = 0

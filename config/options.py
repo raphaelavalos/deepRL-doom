@@ -39,7 +39,7 @@ def get_options():
                         type=int,
                         help='Size of the batch processed per step',
                         required=False)
-    parser.add_argument('--learning_rate', type=float, default=5*1e-4, help="Learning rate default 0.0001",
+    parser.add_argument('--learning_rate', type=float, default=1e-4, help="Learning rate default 0.0001",
                         required=False)
     parser.add_argument('--decay_rate', type=float, default=0.3, help="Decay rate default: 0.3",
                         required=False)

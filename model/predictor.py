@@ -173,7 +173,7 @@ class DOOM_Predictor():
         return learning_rate, optimizer, learning_step, detailed_summary, param_summary
 
     @staticmethod
-    def _choose_action(conf, prediction, goal_weigh, goal, multinomial=True):
+    def _choose_action(conf, prediction, goal_weigh, goal, multinomial=False):
         with tf.variable_scope('choose_action'):
             if goal is None:
                 assert conf['measurement_dim'] in [1, 3], 'Measurement dim different from 1 and 3'

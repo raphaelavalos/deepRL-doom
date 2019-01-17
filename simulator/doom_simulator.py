@@ -22,14 +22,14 @@ class DoomSimulator:
         self.tmp_memory = TmpMemory(conf, memory, _id)
         self.term = False  # TODO: might be removed in favor of closing/opening the game however need to check speed
         self.last_measurements = None
-        self.num_action_to_bool = {
-            0: np.array([False, False, False]),
-            1: np.array([False, False, True]),
-            2: np.array([False, True, False]),
-            3: np.array([False, True, True]),
-            4: np.array([True, False, False]),
-            5: np.array([True, False, True]),
-        }
+        # self.num_action_to_bool = {
+        #     0: np.array([False, False, False]),
+        #     1: np.array([False, False, True]),
+        #     2: np.array([False, True, False]),
+        #     3: np.array([False, True, True]),
+        #     4: np.array([True, False, False]),
+        #     5: np.array([True, False, True]),
+        # }
         self.num_action_to_bool = {
             0: np.array([False, False, True]),
             1: np.array([False, True, False]),
