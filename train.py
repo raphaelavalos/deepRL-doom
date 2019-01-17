@@ -23,24 +23,17 @@ if __name__ == '__main__':
         agent.run_episode(epsilon)
     for epoch in trange(epochs, desc="Epoch"):
         epsilon = agent.random_exploration_prob(epoch * args.step)
-        for k in trange(8, desc="Playing"):
-            agent.run_episode(epsilon, max_steps=None)
+        playing_nbr, max_steps = 1, 32
+        for k in trange(playing_nbr, desc="Playing"):
+            agent.run_episode(epsilon, max_steps=max_steps)
         # Train predictor and save every save_freq epochs
         for step in trange(args.step, desc="Step", leave=False):
-            agent.get_learning_step(batch_size)
+            agent.training_step(batch_size)
 
         f_measures = []
         durations = []
-        if epoch % 10 == 0:
-            for _ in trange(1, desc="Validation", leave=False):
-                f_measure, duration = agent.validate()
-                f_measures.append(f_measure)
-                durations.append(duration)
-
-            f_measures = np.concatenate(f_measures)
-            durations = np.concatenate(durations)
-            print('Health: %.3f +/- %.3f' % (f_measures.mean(), f_measures.std()))  # TODO: change it for modes 3 & 4
-        # print('Duration: %.3f +/- %.3f' % (durations.mean(), durations.std()))  # TODO: change it for modes 3 & 4
+        if epoch % 20 == 0:
+            agent.validate()
 
         if (epoch % save_freq) == 0:
             agent.save_pred(save_dir, epoch)

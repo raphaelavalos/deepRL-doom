@@ -5,12 +5,12 @@ def build_conf(args):
     conf = {}
 
     if args.mode in [1, 2]:
-        conf['action_nbr'] = 8
+        conf['action_nbr'] = 6
         conf['offsets_dim'] = 6
         conf['measurement_dim'] = 1
 
     elif args.mode in [3, 4]:
-        conf['choose_action']['action_nbr'] = 256
+        conf['action_nbr'] = 256
         conf['offsets_dim'] = 6
         conf['measurement_dim'] = 3
 
@@ -85,4 +85,5 @@ def build_conf(args):
     conf['offsets'] = [1, 2, 4, 8, 16, 32]
     conf['skip_tic'] = args.skip_tic
     conf['experiment_name'] = args.name
+    conf['use_goal'] = False
     return conf

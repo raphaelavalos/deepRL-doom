@@ -6,6 +6,7 @@ class MultiDoomSimulator:
 
     def __init__(self, conf, memory):
         self.conf = conf
+        self.use_goal = conf['use_goal']
         self.nbr_of_simulators = conf['nbr_of_simulators']
         self.memory = memory
         self.simulators = [DoomSimulator(conf, memory, _id=i) for i in range(conf['nbr_of_simulators'])]
@@ -30,11 +31,13 @@ class MultiDoomSimulator:
         for simulator in self.simulators:
             simulator.build_commit_reset(max_steps)
 
-    def get_duration(self):
+    def get_duration_and_measurements(self):
         duration = np.zeros((self.nbr_of_simulators,), dtype=np.int64)
+        measurements = np.zeros((self.nbr_of_simulators, self.conf['measurement_dim']), dtype=np.float32)
         for i, simulator in enumerate(self.simulators):
             duration[i] = simulator.duration
-        return duration
+            measurements[i] = np.array(simulator.last_measurements).reshape((self.conf['measurement_dim'],))
+        return duration, measurements
 
     def step(self, actions, goals, ids):
         ids = range(self.nbr_of_simulators) if ids is None else ids
