@@ -23,7 +23,7 @@ if __name__ == '__main__':
         agent.run_episode(epsilon)
     for epoch in trange(epochs, desc="Epoch"):
         epsilon = agent.random_exploration_prob(epoch * args.step)
-        playing_nbr, max_steps = 1, 32
+        playing_nbr, max_steps = 1, 8
         for k in trange(playing_nbr, desc="Playing"):
             agent.run_episode(epsilon, max_steps=max_steps)
         # Train predictor and save every save_freq epochs

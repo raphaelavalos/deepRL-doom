@@ -154,7 +154,7 @@ class DOOM_Predictor():
                                                        decay_steps=conf['decay_steps'],
                                                        decay_rate=conf['decay_rate'],
                                                        staircase=True)
-            optimizer = tf.train.AdamOptimizer(learning_rate)
+            optimizer = tf.train.AdamOptimizer(learning_rate, beta1=0.95, beta2=0.999, epsilon=1e-4)
             t_vars = tf.trainable_variables()
             if True:
                 grads, grad_norm = tf.clip_by_global_norm(tf.gradients(loss, t_vars), 1.0)
