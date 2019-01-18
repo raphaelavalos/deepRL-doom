@@ -98,6 +98,8 @@ class DoomSimulator:
             self.term = True
             img = np.zeros(self.resolution, dtype=np.float32)
             measure = np.full((self.num_measure,), -0.5, dtype=np.float32)  # TODO: modify this
+            if self._game.get_episode_time() < (self._game.get_episode_timeout() - 2):
+                self.last_measurements = np.full_like(self.last_measurements, 0)  # TODO: only works for mode 1 and 2
 
         else:
             img, measure = self.get_state()
