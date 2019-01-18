@@ -24,7 +24,7 @@ if __name__ == '__main__':
     agent.print_memory()
     for epoch in trange(epochs, desc="Epoch"):
         epsilon = agent.random_exploration_prob(epoch * args.step)
-        playing_nbr, max_steps = 1, 8
+        playing_nbr, max_steps = 100, None
         for k in trange(playing_nbr, desc="Playing"):
             agent.run_episode(epsilon, max_steps=max_steps)
         # agent.print_memory()
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
         f_measures = []
         durations = []
-        if epoch % 20 == 0:
+        if epoch % 1 == 0:
             agent.validate()
 
         if (epoch % save_freq) == 0:

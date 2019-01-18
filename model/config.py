@@ -86,4 +86,5 @@ def build_conf(args):
     conf['skip_tic'] = args.skip_tic
     conf['experiment_name'] = args.name
     conf['use_goal'] = False
+    conf['restore_path'] = args.restore_path
     return conf
