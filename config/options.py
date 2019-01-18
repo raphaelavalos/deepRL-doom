@@ -31,7 +31,7 @@ def get_options():
     parser.add_argument('--memory', type=int, default=20000, help="Memory capacity", required=False)
     parser.add_argument('--nbr_of_simulators', default=8, type=int, help='Number of simulators to run in parallel',
                         required=False)
-    parser.add_argument('--save_frequency', default=10,
+    parser.add_argument('--save_frequency', default=2,
                         type=int,
                         help='Frequency in terms of step at which we save the model',
                         required=False)
@@ -39,11 +39,11 @@ def get_options():
                         type=int,
                         help='Size of the batch processed per step',
                         required=False)
-    parser.add_argument('--learning_rate', type=float, default=4*1e-4, help="Learning rate default 0.0001",
+    parser.add_argument('--learning_rate', type=float, default=8e-5, help="Learning rate default 0.0001",
                         required=False)
-    parser.add_argument('--decay_rate', type=float, default=0.3, help="Decay rate default: 0.3",
+    parser.add_argument('--decay_rate', type=float, default=0.1, help="Decay rate default: 0.3",
                         required=False)
-    parser.add_argument('--decay_steps', type=int, default=25000, help="Decay step size",
+    parser.add_argument('--decay_steps', type=int, default=2500, help="Decay step size",
                         required=False)
 
     args = parser.parse_args()

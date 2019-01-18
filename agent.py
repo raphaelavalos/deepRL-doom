@@ -83,6 +83,7 @@ class Agent:
             duration_std_sum = tf.summary.scalar("duration_std", duration_std)
             fmeasure_hist_sum = tf.summary.histogram("fmeasures_hist", self._fmeasure_placeholder)
             fmeasure_sum = tf.summary.tensor_summary("fmeasures_tensor", self._fmeasure_placeholder)
+            fmeasure_mean = tf.summary.scalar("fmeasures_mean", tf.reduce_mean(self._fmeasure_placeholder))
             actions_hist_sum = tf.summary.histogram("actions_hist", self._actions_placeholder)
             actions_sum = tf.summary.tensor_summary("actions_tensor", self._actions_placeholder)
             self.validation_summary = tf.summary.merge([duration_mean_sum,
@@ -91,6 +92,7 @@ class Agent:
                                                         duration_hist_sum,
                                                         fmeasure_hist_sum,
                                                         fmeasure_sum,
+                                                        fmeasure_mean,
                                                         actions_hist_sum,
                                                         actions_sum],
                                                        name="Validation")
