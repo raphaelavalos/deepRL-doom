@@ -16,7 +16,7 @@ def get_device(args):
 def get_options():
     parser = argparse.ArgumentParser(description="Learning To Act By Predicting The Future")
     parser.add_argument('--epoch', default=102500, type=int, help="The number of epoch to train", required=False)
-    parser.add_argument('--step', default=8, type=int, help="The number of steps per epoch", required=False)
+    parser.add_argument('--step', default=100, type=int, help="The number of steps per epoch", required=False)
     parser.add_argument('--architecture', default="basic", type=str, help="The type of architecture, (basic or large",
                         required=False)
     parser.add_argument('--save_dir', default="experiments", type=str, help="The saving directory", required=False)
@@ -28,14 +28,14 @@ def get_options():
     parser.add_argument('--mode', type=int, default=2, choices=[1, 2, 3, 4], help="Scenario number 1,2,3 or 4",
                         required=False)
     parser.add_argument('--skip_tic', type=int, default=4, help="Number of frames skipped (default:4)", required=False)
-    parser.add_argument('--memory', type=int, default=20000, help="Memory capacity", required=False)
+    parser.add_argument('--memory', type=int, default=200000, help="Memory capacity", required=False)
     parser.add_argument('--nbr_of_simulators', default=8, type=int, help='Number of simulators to run in parallel',
                         required=False)
     parser.add_argument('--save_frequency', default=10,
                         type=int,
                         help='Frequency in terms of step at which we save the model',
                         required=False)
-    parser.add_argument('--batch_size', default=64,
+    parser.add_argument('--batch_size', default=1024,
                         type=int,
                         help='Size of the batch processed per step',
                         required=False)
@@ -44,6 +44,8 @@ def get_options():
     parser.add_argument('--decay_rate', type=float, default=0.3, help="Decay rate default: 0.3",
                         required=False)
     parser.add_argument('--decay_steps', type=int, default=250000, help="Decay step size",
+                        required=False)
+    parser.add_argument('--restore_path', type=str, default='experiments/20190117_225403/epoch_10.tf', help="Restore path if needed",
                         required=False)
 
     args = parser.parse_args()

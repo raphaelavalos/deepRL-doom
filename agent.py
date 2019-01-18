@@ -95,12 +95,17 @@ class Agent:
                                                        name="Validation")
             self.detailed_summary = self.doom_predictor.detailed_summary
             self.param_summary = self.doom_predictor.param_summary
+            self.restore_path =self.conf['restore_path']
 
             # Initialise all variables
             self.saver = tf.train.Saver()
             init = tf.global_variables_initializer()
             self.writer = tf.summary.FileWriter("log/" + conf['experiment_name'], self.sess.graph)
-            self.sess.run([init])
+            if self.restore_path == None:
+                self.sess.run([init])
+            else:
+                self.saver.restore(self.sess, self.restore_path)
+
 
         self.memory = Memory(conf)
         self.doom_simulator = MultiDoomSimulator(conf, self.memory)
@@ -192,7 +197,7 @@ class Agent:
     @staticmethod
     def random_exploration_prob(epoch):
         # Here a epoch is a train on one batch plus adding the new experiences to memory
-        return 0.02 + 145000. / (8 * float(epoch) + 150000.)
+        return 0.02 + 14.5 / (float(epoch) + 25.)
 
     def print_memory(self):
         self.memory.print_values()
