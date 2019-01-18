@@ -45,13 +45,14 @@ class Agent:
             self._true_future_placeholder = tf.placeholder(dtype=tf.float32,
                                                            shape=(None, conf['offsets_dim'], conf['measurement_dim']),
                                                            name='true_future_placeholder')
+            # self._training_placeholder = tf.placeholder_with_default(True, shape=[1], name="training_placeholder")
 
             self.doom_predictor = DOOM_Predictor(conf,
                                                  self._visual_placeholder,
                                                  self._measurement_placeholder,
                                                  self._goal_placeholder,
                                                  self._true_action_placeholder,
-                                                 self._true_future_placeholder)
+                                                 self._true_future_placeholder,)
 
             self.dataset = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(self._visual_placeholder),
                                                 tf.data.Dataset.from_tensor_slices(self._measurement_placeholder),

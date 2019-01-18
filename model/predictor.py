@@ -8,13 +8,13 @@ class DOOM_Predictor():
     DOOM Predictor implenting the paper 'Learning To Act By Predicting The Future'
     """
 
-    def __init__(self, conf, visual, measurement, goal, true_action, true_future):
+    def __init__(self, conf, visual, measurement, goal, true_action, true_future, training=None):
         self.conf = conf
 
         # For now we are saving the groups and intermediate outputs to facilitate debugging
         # After that will just need to call DOOM_Predictor._build_net to get prediction
 
-        prediction = DOOM_Predictor._build_net(conf, visual, measurement, goal)
+        prediction = DOOM_Predictor._build_net(conf, visual, measurement, goal, training)
         print(prediction)
         self._prediction = prediction
 
@@ -40,7 +40,7 @@ class DOOM_Predictor():
         self.learning_step = learning_step
 
     @staticmethod
-    def _build_perception(conf, perception_input, name="perception"):
+    def _build_perception(conf, perception_input, training, name="perception"):
         """
 
         Args:
@@ -56,6 +56,11 @@ class DOOM_Predictor():
             conv_group = []
             conv = None
             channel = 1
+
+            perception_input = tf.image.sobel_edges(perception_input)
+            perception_input = tf.sqrt(tf.reduce_sum(tf.square(perception_input), -1))
+            # perception_input = tf.layers.batch_normalization(perception_input, training=training)
+
             for i in range(conf['conv_nbr']):
                 conv_conf = conf['conv_%i' % i]
                 _input = perception_input if i == 0 else conv_group[-1]
@@ -126,8 +131,8 @@ class DOOM_Predictor():
         return prediction
 
     @staticmethod
-    def _build_net(conf, image, measurement, goal):
-        _, perception_output = DOOM_Predictor._build_perception(conf['perception'], image)
+    def _build_net(conf, image, measurement, goal, training):
+        _, perception_output = DOOM_Predictor._build_perception(conf['perception'], image, training)
         _, measurement_output = DOOM_Predictor._build_dense(conf['measurement'], measurement, 'measurement')
         if conf['use_goal']:
             goal_tiled = tf.tile(goal, [1, conf['offsets_dim']])
@@ -153,7 +158,7 @@ class DOOM_Predictor():
                                                        global_step=global_step,
                                                        decay_steps=conf['decay_steps'],
                                                        decay_rate=conf['decay_rate'],
-                                                       staircase=True)
+                                                       staircase=False)
             optimizer = tf.train.AdamOptimizer(learning_rate, beta1=0.95, beta2=0.999, epsilon=1e-4)
             t_vars = tf.trainable_variables()
             if True:
