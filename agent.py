@@ -45,13 +45,14 @@ class Agent:
             self._true_future_placeholder = tf.placeholder(dtype=tf.float32,
                                                            shape=(None, conf['offsets_dim'], conf['measurement_dim']),
                                                            name='true_future_placeholder')
+            # self._training_placeholder = tf.placeholder_with_default(True, shape=[1], name="training_placeholder")
 
             self.doom_predictor = DOOM_Predictor(conf,
                                                  self._visual_placeholder,
                                                  self._measurement_placeholder,
                                                  self._goal_placeholder,
                                                  self._true_action_placeholder,
-                                                 self._true_future_placeholder)
+                                                 self._true_future_placeholder,)
 
             self.dataset = tf.data.Dataset.zip((tf.data.Dataset.from_tensor_slices(self._visual_placeholder),
                                                 tf.data.Dataset.from_tensor_slices(self._measurement_placeholder),
@@ -82,7 +83,7 @@ class Agent:
             duration_std_sum = tf.summary.scalar("duration_std", duration_std)
             fmeasure_hist_sum = tf.summary.histogram("fmeasures_hist", self._fmeasure_placeholder)
             fmeasure_sum = tf.summary.tensor_summary("fmeasures_tensor", self._fmeasure_placeholder)
-            fmeasure_min_sum = tf.summary.tensor_summary("fmeasures_mean", tf.reduce_mean(self._fmeasure_placeholder))
+            fmeasure_mean = tf.summary.scalar("fmeasures_mean", tf.reduce_mean(self._fmeasure_placeholder))
             actions_hist_sum = tf.summary.histogram("actions_hist", self._actions_placeholder)
             actions_sum = tf.summary.tensor_summary("actions_tensor", self._actions_placeholder)
             self.validation_summary = tf.summary.merge([duration_mean_sum,
@@ -91,7 +92,7 @@ class Agent:
                                                         duration_hist_sum,
                                                         fmeasure_hist_sum,
                                                         fmeasure_sum,
-                                                        fmeasure_min_sum,
+                                                        fmeasure_mean,
                                                         actions_hist_sum,
                                                         actions_sum],
                                                        name="Validation")
@@ -103,7 +104,8 @@ class Agent:
             self.saver = tf.train.Saver()
             init = tf.global_variables_initializer()
             self.writer = tf.summary.FileWriter("log/" + conf['experiment_name'], self.sess.graph)
-            if self.restore_path == None:
+            self.restore_path = self.conf['restore_path']
+            if self.restore_path is None:
                 self.sess.run([init])
             else:
                 self.saver.restore(self.sess, self.restore_path)
@@ -138,11 +140,11 @@ class Agent:
                                                                                          running_simulators)
         self.doom_simulator.build_commit_reset(max_steps)
 
-    def validate(self):
+    def validate(self, num=20):
         f_measures = []
         durations = []
         actions = []
-        for _ in trange(20, desc="Validation", leave=False):
+        for _ in trange(num, desc="Validation", leave=False):
             running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
             self.doom_simulator.new_episodes()
             if self.use_goal:

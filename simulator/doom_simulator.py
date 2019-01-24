@@ -119,7 +119,8 @@ class DoomSimulator:
         img = state.screen_buffer
         img = cv2.resize(img, self.resolution[:-1])  # TODO: Check image shape
         img = np.expand_dims(img, -1)  # channel at the end for convolutions
-        img = img / 255. - 0.5
+        # img = img / 255. - 0.5
+        img = img / 255.
         measure = measure / 100. - 0.5
         return img, measure
 
