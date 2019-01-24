@@ -103,7 +103,11 @@ class Agent:
             self.saver = tf.train.Saver()
             init = tf.global_variables_initializer()
             self.writer = tf.summary.FileWriter("log/" + conf['experiment_name'], self.sess.graph)
-            self.sess.run([init])
+            self.restore_path = self.conf['restore_path']
+            if self.restore_path is None:
+                self.sess.run([init])
+            else:
+                self.saver.restore(self.sess, self.restore_path)
 
         self.memory = Memory(conf)
         self.doom_simulator = MultiDoomSimulator(conf, self.memory)
@@ -134,11 +138,11 @@ class Agent:
                                                                                          running_simulators)
         self.doom_simulator.build_commit_reset(max_steps)
 
-    def validate(self):
+    def validate(self, num=20):
         f_measures = []
         durations = []
         actions = []
-        for _ in trange(20, desc="Validation", leave=False):
+        for _ in trange(num, desc="Validation", leave=False):
             running_simulators = list(range(self.doom_simulator.nbr_of_simulators))
             self.doom_simulator.new_episodes()
             if self.use_goal:

@@ -45,6 +45,9 @@ def get_options():
                         required=False)
     parser.add_argument('--decay_steps', type=int, default=2500, help="Decay step size",
                         required=False)
+    parser.add_argument('--restore_path', type=str, default='experiments/test/epoch_550.tf',
+                        help="Restore path if needed",
+                        required=False)
 
     args = parser.parse_args()
 
